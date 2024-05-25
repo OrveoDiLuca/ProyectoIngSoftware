@@ -4,7 +4,7 @@ import { View, Text } from 'react-native';
 export function SearchScreen() {
   return (
     <View>
-      <Text>Search Screen</Text>
+      <Text>Search</Text>
     </View>
   );
 }
