@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native'
+import { View, Text,Image } from 'react-native'
 import React from 'react'
 import {Icon} from "react-native-elements"
 import {createBottomTabNavigator} from "@react-navigation/bottom-tabs"
@@ -17,12 +17,20 @@ export default function HomeScreen() {
    
         <Tab.Navigator screenOptions={({route}) => (
             {
+                headerShown: true, //No muestra el header de la app.
                 tabBarActiveTintColor: '#00a680', //El color de cuando esta sobre la vista seleccionada.
                 tabBarInactiveTintColor: '#646464', //Pone de color gris a los demas.
                 tabBarIcon: ({color, size}) => screenOptions(route,color,size), //Se llama a la funcion creada abajo      
                 tabBarLabelStyle: {
                     fontFamily: 'Inter-ExtraBold',
-                }
+                },
+                headerTitle: () => (
+                    <View style={{width:1000,height:110}}>
+                        <Image source={require('../assets/images/Icon2.png')} style={{width: 60, height: 80}} resizeMode='contain'/>
+                    </View>
+                    
+                ),
+                headerTittleAlign: 'center',
             }
         )}>
             
