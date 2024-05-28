@@ -19,11 +19,14 @@ export default function HomeScreen() {
             {
                 tabBarActiveTintColor: '#00a680', //El color de cuando esta sobre la vista seleccionada.
                 tabBarInactiveTintColor: '#646464', //Pone de color gris a los demas.
-                tabBarIcon: ({color, size}) => screenOptions(route,color,size), //Se llama a la funcion creada abajo               
+                tabBarIcon: ({color, size}) => screenOptions(route,color,size), //Se llama a la funcion creada abajo      
+                tabBarLabelStyle: {
+                    fontFamily: 'Inter-ExtraBold',
+                }
             }
         )}>
             
-                <Tab.Screen name="Inicio" component={Home} /> 
+                <Tab.Screen name="Inicio" component={Home}/> 
                 <Tab.Screen name="Search" component={SearchScreen} />
                 <Tab.Screen name='Recetas' component={Recipes}/>
                 <Tab.Screen name='Ingredientes' component={Ingredients}/>
