@@ -3,7 +3,9 @@ import { useState } from "react";
 import React from "react";
 import { Image, StyleSheet, Platform } from 'react-native';
 
-export default function SeacrhBar() {
+
+
+export function SearchRecipes() {
 
   const [searchText, setSearchText] = useState('');
   const [recipes, setRecipes] = useState([{id: 0, title: '',}]);
