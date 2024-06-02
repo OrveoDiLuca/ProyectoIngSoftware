@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Text, TouchableOpacity, StyleSheet, ScrollView, View, Modal, TextInput, Button, Picker } from 'react-native';
+import { Text, TouchableOpacity, StyleSheet, ScrollView, View, Modal, TextInput, Button} from 'react-native';
 import { Icon } from 'react-native-elements';
+import { Picker } from '@react-native-picker/picker';
 
 export function Ingredients() {
   const [ingredients, setIngredients] = useState([]);
