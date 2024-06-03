@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Text, TouchableOpacity, StyleSheet, ScrollView, View, Modal, TextInput, Button} from 'react-native';
 import { Icon } from 'react-native-elements';
 import { Picker } from '@react-native-picker/picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export function Ingredients() {
   const [ingredients, setIngredients] = useState([]);
@@ -9,10 +10,16 @@ export function Ingredients() {
   const [newIngredient, setNewIngredient] = useState('');
   const [quantity, setQuantity] = useState('');
   const [unit, setUnit] = useState('gramos');
-  const [expiryDate, setExpiryDate] = useState('');
+  const [expireDate, setExpireDate] = useState('');
+  const [date, setDate] = useState(new Date());
+
 
   const addIngredient = () => {
     setModalVisible(true);
+  };
+
+  const onChange = (e, selectedDate) => {
+    setExpireDate(selectedDate.toLocaleDateString());
   };
 
   const handleAddIngredient = () => {
@@ -22,12 +29,12 @@ export function Ingredients() {
       number: ingredientNumber,
       quantity: quantity,
       unit: unit,
-      expiryDate: expiryDate
+      expireDate: expireDate
     }]);
     setNewIngredient('');
     setQuantity('');
     setUnit('gramos');
-    setExpiryDate('');
+    setExpireDate('');
     setModalVisible(false);
   };
 
@@ -40,7 +47,7 @@ export function Ingredients() {
       {ingredients.map((ingredient, index) => (
         <View style={styles.ingredientContainer} key={index}>
           <Text style={{ marginBottom: 10 }}>
-            Ingrediente {ingredient.number}: {ingredient.name}, {ingredient.quantity} {ingredient.unit}, Fecha de vencimiento: {ingredient.expiryDate}
+            Ingrediente {ingredient.number}: {ingredient.name}, {ingredient.quantity} {ingredient.unit}, Fecha de vencimiento: {ingredient.expireDate}
           </Text>
         </View>
       ))}
@@ -55,7 +62,7 @@ export function Ingredients() {
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <Text style={styles.modalText}>Añadir Nuevo Ingrediente</Text>
+            <Text style={styles.modalTitle}>Añadir Nuevo Ingrediente</Text>
             <TextInput
               style={styles.input}
               placeholder="Nombre del ingrediente"
@@ -80,13 +87,16 @@ export function Ingredients() {
                 <Picker.Item label="Mililitros" value="ml" />
               </Picker>
             </View>
-            <TextInput
-              style={styles.input}
-              placeholder="Fecha de vencimiento (DD/MM/AAAA)"
-              value={expiryDate}
-              onChangeText={setExpiryDate}
-              keyboardType="numeric"
-            />
+            <View style={styles.row}>
+              <Text style={styles.textStyle}>Fecha de vencimiento: </Text>
+              <DateTimePicker
+                mode={'date'}
+                value={date}
+                minimumDate={new Date()}
+                is24Hour={true}
+                onChange = {onChange}
+              />
+            </View>
             <View style={styles.buttonContainer}>
               <Button
                 title="Añadir"
@@ -155,9 +165,14 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: 10,
   },
-  modalText: {
+  modalTitle: {
     marginBottom: 15,
     textAlign: 'center',
+    fontFamily: 'Inter-ExtraBold',
+    fontSize: 18,
+  },
+  textStyle:{
+    fontFamily: 'Inter-ExtraBold',
   },
   input: {
     height: 40,
@@ -171,18 +186,15 @@ const styles = StyleSheet.create({
     height: 40,
     borderColor: 'gray',
     borderWidth: 1,
-    marginBottom: 15,
     width: '45%',
-    paddingHorizontal: 10,
   },
   picker: {
-    height: 40,
     width: '45%',
-    marginBottom: 15,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     width: '100%',
   },
 });
