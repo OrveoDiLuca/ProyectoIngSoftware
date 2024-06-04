@@ -3,6 +3,8 @@ import { Text, TouchableOpacity, StyleSheet, ScrollView, View, Modal, TextInput,
 import { Icon } from 'react-native-elements';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import IngredientCard from '../components/atoms/IngredientCard';
+import SearchIngredients from '../components/molecules/SearchIngredients';
 
 export function Ingredients() {
   const [ingredients, setIngredients] = useState([]);
@@ -15,12 +17,16 @@ export function Ingredients() {
 
 
   const addIngredient = () => {
-    setModalVisible(true);
+    setModalVisible(!modalVisible);
   };
 
   const onChange = (e, selectedDate) => {
     setExpireDate(selectedDate.toLocaleDateString());
   };
+
+  const handleNewIngredient = (newIngredient) => {
+    setNewIngredient(newIngredient["name"])
+  }
 
   const handleAddIngredient = () => {
     const ingredientNumber = ingredients.length + 1;
@@ -45,11 +51,7 @@ export function Ingredients() {
         <Icon type='material-community' name='plus-circle' color='white' size={35} />
       </TouchableOpacity>
       {ingredients.map((ingredient, index) => (
-        <View style={styles.ingredientContainer} key={index}>
-          <Text style={{ marginBottom: 10 }}>
-            Ingrediente {ingredient.number}: {ingredient.name}, {ingredient.quantity} {ingredient.unit}, Fecha de vencimiento: {ingredient.expireDate}
-          </Text>
-        </View>
+        <IngredientCard ingredient = {ingredient} index = {index}/>
       ))}
       
       <Modal
@@ -63,12 +65,9 @@ export function Ingredients() {
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <Text style={styles.modalTitle}>Añadir Nuevo Ingrediente</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Nombre del ingrediente"
-              value={newIngredient}
-              onChangeText={setNewIngredient}
-            />
+            
+            <SearchIngredients addIngredient={handleNewIngredient}/>
+
             <View style={styles.row}>
               <TextInput
                 style={styles.inputHalf}
