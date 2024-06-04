@@ -1,9 +1,10 @@
-import { View, Text,StyleSheet,FlatList,ActivityIndicator } from 'react-native'
+import { View, Text,StyleSheet,FlatList,ActivityIndicator, Image } from 'react-native'
 import axios from 'axios'
 import React,{useEffect,useState} from 'react'
 import {styles} from "./StyleRecetas"
 
 const BASE_URL = "https://api.spoonacular.com/recipes/complexSearch"
+
 const calculateNutritionalValues = (nutrition) => {
     if (!nutrition || !nutrition.nutrients) {
       return {
@@ -63,16 +64,22 @@ const calculateNutritionalValues = (nutrition) => {
     }
   
     return (
-      <View>
+      <View style={styles.listContainer}>
         <FlatList
           data={recipes}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => {
             const nutritionalValues = calculateNutritionalValues(item.nutrition);
             return (
-              <View style = {styles.conteiner}>
-                <Text style = {styles.title}>{item.title}</Text>
-                <Text style = {styles.nutriente}>Total valor nutricional: {nutritionalValues}</Text>
+              <View style={styles.card}>
+                <Image 
+                  source={{ uri: item.image }} 
+                  style={styles.image} 
+                />
+                <View style={styles.textContainer}>
+                  <Text style={styles.title}>{item.title}</Text>
+                  <Text style={styles.nutriente}>Total valor nutricional: {nutritionalValues}</Text>
+                </View>
               </View>
             );
           }}
