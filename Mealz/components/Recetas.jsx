@@ -32,7 +32,7 @@ const calculateNutritionalValues = (nutrition) => {
       try {
         const response = await axios.get(BASE_URL, {
           params: {
-            apiKey: '830ae5b92d6141f086417e0be25133fe',
+            apiKey: '79d5d31d011848849104d4d813478b2d',
             number: 100,
             addRecipeNutrition: true,
           }
