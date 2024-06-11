@@ -1,22 +1,41 @@
-import {StyleSheet} from "react-native"
+import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-    conteiner:{
-        flex:1,
-        paddingTop:20,
-        paddingHorizontal:20,
-      },
-      title:{
-        fontSize:15,
-        color:'#00a680',
-        fontWeight:'bold',
-        paddingBottom:10,
-        backgroundColor:'#fff',
-        textAlign:'center',
-      },
-      nutriente:{
-        fontSize:13,
-        fontWeight:'bold',
-        textAlign:'center',
-      }
-})
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    marginTop: 20,
+    marginBottom: 0,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    width: '90%',
+    alignSelf: 'center',
+  },
+  image: {
+    width: '100%',
+    height: 200,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    resizeMode: 'cover',
+  },
+  textContainer: {
+    padding: 10,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#00a680',
+    marginBottom: 5,
+  },
+  nutriente: {
+    fontSize: 14,
+    color: '#666',
+    fontStyle: 'italic',
+  },
+});
