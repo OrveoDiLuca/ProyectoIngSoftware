@@ -67,6 +67,24 @@ const AuthScreen = ({ email, setEmail, password, setPassword, isLogin, setIsLogi
 };
 
 const ProfileScreen = ({ user, profile, handleLogout }) => {
+  const [favorites, setFavorites] = useState([]);
+
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      try {
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          setFavorites(userDoc.data().favorites || []);
+        }
+      } catch (error) {
+        console.error('Error fetching favorites:', error);
+      }
+    };
+
+    fetchFavorites();
+  }, [user]);
+
   const handleImagePick = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -96,11 +114,21 @@ const ProfileScreen = ({ user, profile, handleLogout }) => {
       </TouchableOpacity>
       <Text style={styles.profileText}>Username: {profile.username}</Text>
       <Text style={styles.profileText}>Description: {profile.description}</Text>
-      <Text style={styles.profileText}>Email: {profile.email}</Text>
+      <Text style={styles.profileText}>Recetas Favoritas:</Text>
+      {favorites.length > 0 ? (
+        favorites.map((recipe, index) => (
+          <View key={index} style={styles.favoriteRecipe}>
+            <Text style={styles.recipeTitle}>{recipe.title}</Text>
+          </View>
+        ))
+      ) : (
+        <Text style={styles.profileText}>No tienes recetas favoritas aún.</Text>
+      )}
       <Button title="Logout" onPress={handleLogout} color="#e74c3c" />
     </View>
   );
 };
+
 
 
 export function Account() {
@@ -253,7 +281,18 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
   },
+  favoriteRecipe: {
+    backgroundColor: '#f9f9f9',
+    padding: 10,
+    marginVertical: 5,
+    borderRadius: 5,
+  },
+  recipeTitle: {
+    fontSize: 16,
+    color: '#333',
+  }
 });
 
 export default Account;
+
 

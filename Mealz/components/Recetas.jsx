@@ -1,9 +1,12 @@
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Image } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Image, Button } from 'react-native';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import { getFirestore, doc, updateDoc, arrayUnion } from '@firebase/firestore';
+import { getAuth } from '@firebase/auth';
 import { styles } from "./StyleRecetas"; // Ensure this file exists and exports a valid styles object
 
 const BASE_URL = "https://api.spoonacular.com/recipes/complexSearch";
+const db = getFirestore();
 
 const calculateNutritionalValues = (nutrition) => {
   if (!nutrition || !nutrition.nutrients) {
@@ -27,6 +30,7 @@ const calculateNutritionalValues = (nutrition) => {
 const Recetas = () => {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const auth = getAuth();
 
   const fetchRecipes = async () => {
     try {
@@ -54,6 +58,28 @@ const Recetas = () => {
     fetchRecipes();
   }, []);
 
+  const addToFavorites = async (recipe) => {
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        const userDocRef = doc(db, 'users', user.uid);
+        await updateDoc(userDocRef, {
+          favorites: arrayUnion({
+            id: recipe.id,
+            title: recipe.title,
+            image: recipe.image,
+            nutrition: recipe.nutrition
+          })
+        });
+        console.log('Recipe added to favorites:', recipe.title);
+      } catch (error) {
+        console.error('Error adding recipe to favorites:', error);
+      }
+    } else {
+      console.error('No user is signed in');
+    }
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -79,6 +105,7 @@ const Recetas = () => {
               <View style={styles.textContainer}>
                 <Text style={styles.title}>{item.title}</Text>
                 <Text style={styles.nutriente}>Total valor nutricional: {nutritionalValues}</Text>
+                <Button title="Añadir a Favoritos" onPress={() => addToFavorites(item)} />
               </View>
             </View>
           );
@@ -89,6 +116,8 @@ const Recetas = () => {
 };
 
 export default Recetas;
+
+
 
 
 
