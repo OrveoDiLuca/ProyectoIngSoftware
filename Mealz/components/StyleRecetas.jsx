@@ -1,41 +1,39 @@
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-  card: {
+  listContainer: {
+    flex: 1,
+    padding: 10,
     backgroundColor: '#fff',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  card: {
+    flexDirection: 'row',
+    marginVertical: 10,
+    backgroundColor: '#f8f8f8',
     borderRadius: 10,
-    marginTop: 20,
-    marginBottom: 0,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    width: '90%',
-    alignSelf: 'center',
+    overflow: 'hidden',
+    elevation: 3,
   },
   image: {
-    width: '100%',
-    height: 200,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    resizeMode: 'cover',
+    width: 100,
+    height: 100,
   },
   textContainer: {
+    flex: 1,
     padding: 10,
+    justifyContent: 'center',
   },
   title: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-    color: '#00a680',
-    marginBottom: 5,
   },
   nutriente: {
     fontSize: 14,
-    color: '#666',
-    fontStyle: 'italic',
+    color: '#555',
   },
 });
