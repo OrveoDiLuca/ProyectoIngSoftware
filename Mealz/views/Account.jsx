@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
 import { initializeApp } from '@firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from '@firebase/auth';
+import { getFirestore, doc, setDoc, getDoc, updateDoc } from '@firebase/firestore';
+import * as ImagePicker from 'expo-image-picker';
+import { getStorage, ref, uploadBytes, getDownloadURL } from '@firebase/storage';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDoYXpg0KY7ICo7StLLIAMjh1S1obeEU_s",
@@ -14,15 +17,30 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
 
-
-
-const AuthScreen = ({ email, setEmail, password, setPassword, isLogin, setIsLogin, handleAuthentication }) => {
+const AuthScreen = ({ email, setEmail, password, setPassword, isLogin, setIsLogin, handleAuthentication, username, setUsername, description, setDescription }) => {
   return (
     <View style={styles.authContainer}>
-       <Text style={styles.title}>{isLogin ? 'Sign In' : 'Sign Up'}</Text>
-
-       <TextInput
+      <Text style={styles.title}>{isLogin ? 'Sign In' : 'Sign Up'}</Text>
+      {!isLogin && (
+        <>
+          <TextInput
+            style={styles.input}
+            value={username}
+            onChangeText={setUsername}
+            placeholder="Username"
+          />
+          <TextInput
+            style={styles.input}
+            value={description}
+            onChangeText={setDescription}
+            placeholder="Description"
+          />
+        </>
+      )}
+      <TextInput
         style={styles.input}
         value={email}
         onChangeText={setEmail}
@@ -39,7 +57,6 @@ const AuthScreen = ({ email, setEmail, password, setPassword, isLogin, setIsLogi
       <View style={styles.buttonContainer}>
         <Button title={isLogin ? 'Sign In' : 'Sign Up'} onPress={handleAuthentication} color="#3498db" />
       </View>
-
       <View style={styles.bottomContainer}>
         <Text style={styles.toggleText} onPress={() => setIsLogin(!isLogin)}>
           {isLogin ? 'Need an account? Sign Up' : 'Already have an account? Sign In'}
@@ -47,51 +64,122 @@ const AuthScreen = ({ email, setEmail, password, setPassword, isLogin, setIsLogi
       </View>
     </View>
   );
-}
+};
 
+const ProfileScreen = ({ user, profile, handleLogout }) => {
+  const [favorites, setFavorites] = useState([]);
 
-const AuthenticatedScreen = ({ user, handleAuthentication }) => {
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      try {
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          setFavorites(userDoc.data().favorites || []);
+        }
+      } catch (error) {
+        console.error('Error fetching favorites:', error);
+      }
+    };
+
+    fetchFavorites();
+  }, [user]);
+
+  const handleImagePick = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const response = await fetch(result.uri);
+      const blob = await response.blob();
+      const storageRef = ref(storage, `profilePictures/${user.uid}`);
+      await uploadBytes(storageRef, blob);
+      const downloadURL = await getDownloadURL(storageRef);
+      setProfile({ ...profile, profilePicture: downloadURL });
+    }
+  };
+
   return (
     <View style={styles.authContainer}>
-      <Text style={styles.title}>Welcome</Text>
-      <Text style={styles.emailText}>{user.email}</Text>
-      <Button title="Logout" onPress={handleAuthentication} color="#e74c3c" />
+      <Text style={styles.title}>Profile</Text>
+      <TouchableOpacity onPress={handleImagePick}>
+        <Image
+          source={profile.profilePicture ? { uri: profile.profilePicture } : require('../assets/images/FotoEmilioGonzález.jpg')}
+          style={styles.profilePicture}
+        />
+      </TouchableOpacity>
+      <Text style={styles.profileText}>Username: {profile.username}</Text>
+      <Text style={styles.profileText}>Description: {profile.description}</Text>
+      <Text style={styles.profileText}>Recetas Favoritas:</Text>
+      {favorites.length > 0 ? (
+        favorites.map((recipe, index) => (
+          <View key={index} style={styles.favoriteRecipe}>
+            <Text style={styles.recipeTitle}>{recipe.title}</Text>
+          </View>
+        ))
+      ) : (
+        <Text style={styles.profileText}>No tienes recetas favoritas aún.</Text>
+      )}
+      <Button title="Logout" onPress={handleLogout} color="#e74c3c" />
     </View>
   );
 };
 
+
+
 export function Account() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [user, setUser] = useState(null); // Track user authentication state
+  const [user, setUser] = useState(null);
   const [isLogin, setIsLogin] = useState(true);
+  const [profile, setProfile] = useState({ username: '', description: '', profilePicture: '' });
+  const [isConnected, setIsConnected] = useState(true);
 
   const auth = getAuth(app);
+
+  const checkConnection = async () => {
+    try {
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (userDoc.exists()) {
+        setProfile(userDoc.data());
+      }
+      setIsConnected(true);
+    } catch (error) {
+      console.error('Connection error:', error.message);
+      setIsConnected(false);
+    }
+  };
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
+      if (user) {
+        await checkConnection();
+      }
     });
 
     return () => unsubscribe();
   }, [auth]);
 
-  
   const handleAuthentication = async () => {
     try {
       if (user) {
-        // Si el usuario esta autenticado, log out
-        console.log('User logged out successfully!');
         await signOut(auth);
       } else {
-        // Sign in or sign up
         if (isLogin) {
-          // Sign in
           await signInWithEmailAndPassword(auth, email, password);
-          console.log('User signed in successfully!');
         } else {
-          // Sign up
-          await createUserWithEmailAndPassword(auth, email, password);
-          console.log('User created successfully!');
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          await setDoc(doc(db, 'users', userCredential.user.uid), {
+            username: '',
+            email: email,
+            description: '',
+            profilePicture: ''
+          });
         }
       }
     } catch (error) {
@@ -99,13 +187,23 @@ export function Account() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Error logging out:', error.message);
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {user ? (
-        // Muestra el correo de los usuarios si estan autenticados
-        <AuthenticatedScreen user={user} handleAuthentication={handleAuthentication} />
+        <ProfileScreen
+          user={user}
+          profile={profile}
+          handleLogout={handleLogout}
+        />
       ) : (
-        // Muestra registro/inicio sesion si el usuario no esta autenticado
         <AuthScreen
           email={email}
           setEmail={setEmail}
@@ -116,9 +214,11 @@ export function Account() {
           handleAuthentication={handleAuthentication}
         />
       )}
+      
     </ScrollView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -159,9 +259,40 @@ const styles = StyleSheet.create({
   bottomContainer: {
     marginTop: 20,
   },
-  emailText: {
-    fontSize: 18,
-    textAlign: 'center',
-    marginBottom: 20,
+  offlineContainer: {
+    padding: 16,
+    backgroundColor: '#e74c3c',
+    borderRadius: 8,
   },
+  offlineText: {
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  profilePicture: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  profileText: {
+    fontSize: 18,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  favoriteRecipe: {
+    backgroundColor: '#f9f9f9',
+    padding: 10,
+    marginVertical: 5,
+    borderRadius: 5,
+  },
+  recipeTitle: {
+    fontSize: 16,
+    color: '#333',
+  }
 });
+
+export default Account;
+
+
