@@ -3,13 +3,11 @@ import React from 'react'
 import {Icon} from "react-native-elements"
 import {createBottomTabNavigator} from "@react-navigation/bottom-tabs"
 import { Home } from '../views/Home';
-import { SearchScreen } from '../views/SearchScreen';
 import { Account } from '../views/Account';
 import {Recipes} from '../views/Recipes'
 import {Ingredients} from '../views/Ingredients'
 import { createStackNavigator } from '@react-navigation/stack';
 import {RecipeInfo} from '../views/RecipeInfo';
-import { NavigationContainer } from '@react-navigation/native';
 
 
 
@@ -49,16 +47,15 @@ export default function HomeScreen() {
                 </Tab.Screen> 
                
 
-                <Tab.Screen name="Search">
+                <Tab.Screen name="Recetas">
                  {()=>(
                     <Stack.Navigator >
-                        <Stack.Screen name="Busqueda" component={SearchScreen} />
+                        <Stack.Screen name="Mis recetas" component={Recipes} />
                         <Stack.Screen name="RecipeInfo" component={RecipeInfo} />
                     </Stack.Navigator>
                 )}
                 </Tab.Screen>
                
-                <Tab.Screen name='Recetas' component={Recipes}/>
                 <Tab.Screen name='Ingredientes' component={Ingredients}/>
                 <Tab.Screen name="Perfil" component={Account}/>
             

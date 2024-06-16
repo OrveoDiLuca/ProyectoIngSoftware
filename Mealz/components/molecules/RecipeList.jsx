@@ -5,7 +5,7 @@ import RecipeCard from '../atoms/RecipeCard';
 //Componente de listado de recetas
 //Solo retorna tarjetas en forma de lista si el atributo de imagen no esta vacio
 
-const RecipeList = ({ recipes,navigation }) => {
+const RecipeList = ({ recipes, navigation }) => {
   return (
     <FlatList 
       data={recipes}

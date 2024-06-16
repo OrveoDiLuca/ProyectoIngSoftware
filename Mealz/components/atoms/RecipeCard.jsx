@@ -36,7 +36,6 @@ const RecipeCard = ({item, navigation}) => {
           onPress={() => {
             handleInfo()
             navigation.navigate("RecipeInfo", {recipeInfo: info})
-            console.log(info);
           }}
         />
       </View> 

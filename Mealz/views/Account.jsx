@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
 import { initializeApp } from '@firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from '@firebase/auth';
-import { getFirestore, addDoc, collection } from "firebase/firestore";
+import { getFirestore, setDoc, collection, doc } from "firebase/firestore";
 
 
 const firebaseConfig = {
@@ -90,8 +90,6 @@ export function Account() {
   const [lastname, setLastName] = useState('');
   const [favoritefood, setFavoriteFood] = useState('');
 
-
-
   const auth = getAuth(app);
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -127,17 +125,24 @@ export function Account() {
   };
 
   const create = () => {
-    addDoc(collection(db, "Users"), {
-      email: email,
-      favoritefood: favoritefood,
-      lastname: lastname,
-      name: name
-    }).then(() => {
-      console.log('data submitted');
-    }).catch((error) => {
-      console.log(error);
-    });
-  };
+    const user = auth.currentUser;
+    const userId = user.uid; // Get the user ID
+    const userDocRef = doc(collection(db, "Users"), userId); // Create reference with user ID
+  
+      setDoc(userDocRef, {
+        email: email,
+        favoritefood: favoritefood,
+        lastname: lastname,
+        name: name,
+        ingredients: [],
+        recipes: []
+      }).then(() => {
+        console.log('data submitted');
+      }).catch((error) => {
+        console.log(error);
+      });
+    };
+    
   
   return (
     <ScrollView contentContainerStyle={styles.container}>
