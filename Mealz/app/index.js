@@ -7,9 +7,14 @@ import { SearchScreen } from '../views/SearchScreen';
 import { Account } from '../views/Account';
 import {Recipes} from '../views/Recipes'
 import {Ingredients} from '../views/Ingredients'
+import { createStackNavigator } from '@react-navigation/stack';
+import {RecipeInfo} from '../views/RecipeInfo';
+import { NavigationContainer } from '@react-navigation/native';
+
 
 
 const Tab = createBottomTabNavigator() //Creo el boton para la navegacion de la app. 
+const Stack = createStackNavigator()
 
 
 export default function HomeScreen() {
@@ -34,15 +39,35 @@ export default function HomeScreen() {
             }
         )}>
             
-                <Tab.Screen name="Inicio" component={Home}/> 
-                <Tab.Screen name="Search" component={SearchScreen} />
+                <Tab.Screen name="Inicio"> 
+                    {()=>(
+                    <Stack.Navigator >
+                        <Stack.Screen name="Home" component={Home} />
+                        <Stack.Screen name="RecipeInfo" component={RecipeInfo} />
+                    </Stack.Navigator>
+                )} 
+                </Tab.Screen> 
+               
+
+                <Tab.Screen name="Search">
+                 {()=>(
+                    <Stack.Navigator >
+                        <Stack.Screen name="Busqueda" component={SearchScreen} />
+                        <Stack.Screen name="RecipeInfo" component={RecipeInfo} />
+                    </Stack.Navigator>
+                )}
+                </Tab.Screen>
+               
                 <Tab.Screen name='Recetas' component={Recipes}/>
                 <Tab.Screen name='Ingredientes' component={Ingredients}/>
                 <Tab.Screen name="Perfil" component={Account}/>
             
         </Tab.Navigator>  
 
+
     );
+
+    
 }
 
 function screenOptions(route,color,size){
