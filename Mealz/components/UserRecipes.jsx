@@ -12,6 +12,7 @@ const API_KEY = "e803858775df4b07bcf8f34291b5bf58"
 const calculateNutritionalValues = (nutrition) => {
   if (!nutrition || !nutrition.nutrients) {
     return {
+      total: 0,
       calories: 0, 
       protein: 0, 
       carbohydrates: 0, 
@@ -25,8 +26,16 @@ const calculateNutritionalValues = (nutrition) => {
   const fat = nutrition.nutrients.find(nutrient => nutrient.name === 'Fat')?.amount || 0;
 
   const total = (calories + protein + carbohydrates + fat) / 100;
-  return `${total.toFixed(1)}`;
+  return {
+    total: total.toFixed(1),
+    calories: calories.toFixed(1) + " kcal",
+    protein: protein.toFixed(1) + " g",
+    carbohydrates: carbohydrates.toFixed(1) + " g",
+    fat: fat.toFixed(1) + " g"
+  };
 }
+
+
 
 const UserRecipes = ({navigation}) => {
   const [info, setInfo] = useState({id: 0, title: " ", image: " ", summary: " "})
@@ -141,58 +150,68 @@ const UserRecipes = ({navigation}) => {
       <Text> Mis Recetas </Text>
       <Text> Recetas recomendadas según tus ingredientes! </Text>
       <FlatList
-        data={recipes}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => {
-          const nutritionalValues = calculateNutritionalValues(item.nutrition);
-          return (
-            <TouchableOpacity 
-              onPress={() => {
-              handleInfo(item={item})
-              navigation.navigate("RecipeInfo", {recipeInfo: info})
-            }}>
-              <View style={styles.card}>
-                <Image 
-                  source={{ uri: item.image }} 
-                  style={styles.image} 
-                />
-                <View style={styles.textContainer}>
-                  <Text style={styles.title}>{item.title}</Text>
-                  <Text style={styles.nutriente}>Total valor nutricional: {nutritionalValues}</Text>
-                  <Button title="Añadir a Favoritos" onPress={() => addToFavorites(item)} style={{ pointerEvents: 'box-none' }} />
-                </View>
-              </View>
-            </TouchableOpacity>  
-          );
-        }}
-      />
+  data={recipes}
+  keyExtractor={(item) => item.id.toString()}
+  renderItem={({ item }) => {
+    const { total, calories, protein, carbohydrates, fat } = calculateNutritionalValues(item.nutrition);
+    return (
+      <TouchableOpacity 
+        onPress={() => {
+          handleInfo(item={item});
+          navigation.navigate("RecipeInfo", {recipeInfo: info});
+        }}>
+        <View style={styles.card}>
+          <Image 
+            source={{ uri: item.image }} 
+            style={styles.image} 
+          />
+          <View style={styles.textContainer}>
+            <Text style={styles.title}>{item.title}</Text>
+            <Text style={styles.nutriente}>Calorías: {calories}</Text>
+            <Text style={styles.nutriente}>Proteínas: {protein}</Text>
+            <Text style={styles.nutriente}>Carbohidratos: {carbohydrates}</Text>
+            <Text style={styles.nutriente}>Grasas: {fat}</Text>
+            <Button title="Añadir a Favoritos" onPress={() => addToFavorites(item)} style={{ pointerEvents: 'box-none' }} />
+          </View>
+        </View>
+      </TouchableOpacity>  
+    );
+  }}
+/>
+
+
       <Text>La loquera</Text>
       <FlatList
-        data={recipes1}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => {
-          const nutritionalValues = calculateNutritionalValues(item.nutrition);
-          return (
-            <TouchableOpacity 
-              onPress={() => {
-              handleInfo(item={item})
-              navigation.navigate("RecipeInfo", {recipeInfo: info})
-            }}>
-              <View style={styles.card}>
-                <Image 
-                  source={{ uri: item.image }} 
-                  style={styles.image} 
-                />
-                <View style={styles.textContainer}>
-                  <Text style={styles.title}>{item.title}</Text>
-                  <Text style={styles.nutriente}>Total valor nutricional: {nutritionalValues}</Text>
-                  <Button title="Añadir a Favoritos" onPress={() => addToFavorites(item)} style={{ pointerEvents: 'box-none' }} />
-                </View>
-              </View>
-            </TouchableOpacity>  
-          );
-        }}
-      />
+  data={recipes}
+  keyExtractor={(item) => item.id.toString()}
+  renderItem={({ item }) => {
+    const { total, calories, protein, carbohydrates, fat } = calculateNutritionalValues(item.nutrition);
+    return (
+      <TouchableOpacity 
+        onPress={() => {
+          handleInfo(item={item});
+          navigation.navigate("RecipeInfo", {recipeInfo: info});
+        }}>
+        <View style={styles.card}>
+          <Image 
+            source={{ uri: item.image }} 
+            style={styles.image} 
+          />
+          <View style={styles.textContainer}>
+            <Text style={styles.title}>{item.title}</Text>
+            <Text style={styles.nutriente}>Calorías: {calories}</Text>
+            <Text style={styles.nutriente}>Proteínas: {protein}</Text>
+            <Text style={styles.nutriente}>Carbohidratos: {carbohydrates}</Text>
+            <Text style={styles.nutriente}>Grasas: {fat}</Text>
+            <Button title="Añadir a Favoritos" onPress={() => addToFavorites(item)} style={{ pointerEvents: 'box-none' }} />
+          </View>
+        </View>
+      </TouchableOpacity>  
+    );
+  }}
+/>
+
+
     </View>
   );
 };
