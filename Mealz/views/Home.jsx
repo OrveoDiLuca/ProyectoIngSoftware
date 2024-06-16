@@ -1,12 +1,13 @@
 import React,{useState,useEffect} from 'react';
 import { View, Text, ScrollView, Image,StyleSheet} from 'react-native';
+import  RecipeCard from '../components/atoms/RecipeCard';
 import {HomeFeed} from '../components/organisms/HomeFeed';
 import axios from "axios"
 
 const BASE_URL = 'https://api.spoonacular.com';
 const API_KEY = '79d5d31d011848849104d4d813478b2d';
 
-export function Home() {
+export function Home({navigation}) {
   const [recipes, setRecipes] = useState([]);
 
   useEffect(() => {
@@ -25,19 +26,17 @@ export function Home() {
     fetchRecipes()
   }, []);
 
+  
+
   return (
     <ScrollView>
       <View style={styles.container}>
         <Text style={styles.title}>Recetas que te recomendamos !!!!</Text>
         {recipes.map(recipe => (
-          <View key={recipe.id} style={styles.recipeCard}>
-            <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
-            <Text style={styles.recipeTitle}>{recipe.title}</Text>
-          </View>
+          <RecipeCard item={recipe} navigation={navigation} />
         ))}
       </View>
     </ScrollView>
-
   );
 }
 

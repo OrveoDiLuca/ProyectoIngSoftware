@@ -4,10 +4,10 @@ import {SearchRecipes} from '../components/molecules/SearchRecipes';
 
 
 
-export function SearchScreen() {
+export function SearchScreen({navigation}) {
   return (
     <View className = "flex-col items-centerflex flex-col">
-     <SearchRecipes/>
+     <SearchRecipes navigation={navigation} />
     </View>
   );
 }
