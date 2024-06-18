@@ -7,6 +7,7 @@ import { styles } from "./StyleRecetas"; // Ensure this file exists and exports 
 import {SearchRecipes} from '../components/molecules/SearchRecipes';
 
 const BASE_URL = "https://api.spoonacular.com/recipes/complexSearch";
+const ALT_URL = "https://api.spoonacular.com/recipes/findByIngredients"
 const db = getFirestore();
 const API_KEY = "e803858775df4b07bcf8f34291b5bf58"
 
@@ -42,6 +43,7 @@ const UserRecipes = ({navigation}) => {
   const [info, setInfo] = useState({id: 0, title: " ", image: " ", summary: " "})
   const [recipes, setRecipes] = useState([]);
   const [userRecipes, setUserRecipes] = useState([]);
+  const [ingredientRecipes, setIngredientRecipes] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const auth = getAuth();
@@ -58,6 +60,32 @@ const UserRecipes = ({navigation}) => {
       }
     } 
   }
+
+  const fetchIngredientRecipes = async () => {
+    if (isLoggedIn) {
+      const userDocRef = doc(db, 'Users', user.uid);
+      const userData = await getDoc(userDocRef);
+      try {
+        const response = await axios.get(ALT_URL, {
+          params: {
+            ingredients: userData.data().ingredients.join(", "),
+            apiKey: API_KEY,
+            number: 5,
+            addRecipeNutrition: true,
+          }
+        });
+        if (response.data && response.data.results) {
+          setIngredientRecipes(response.data.results);
+        } else {
+          console.error('No results found');
+        }
+      } catch (error) {
+        console.error('Error fetching recipes:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
 
   const fetchRecipes = async () => {
     try {
