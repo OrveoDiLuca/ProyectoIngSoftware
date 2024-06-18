@@ -1,8 +1,6 @@
 import React,{useState,useEffect} from 'react';
 import { View, Text, ScrollView, Image,StyleSheet} from 'react-native';
 import  RecipeCard from '../components/atoms/RecipeCard';
-import {HomeFeed} from '../components/organisms/HomeFeed';
-import axios from "axios"
 
 const BASE_URL = 'https://api.spoonacular.com';
 const API_KEY = 'e803858775df4b07bcf8f34291b5bf58';
