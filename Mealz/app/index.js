@@ -25,14 +25,10 @@ export default function HomeScreen() {
         },
         headerTitle: () => (
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-            <Image
-              source={require('../assets/images/Icon2.png')}
-              style={{ width: 60, height: 80, resizeMode: 'contain' }} // Adjust size as needed
-            />
             <View style={{ flex: 1, alignItems: 'center' }}>
               <Image
                 source={require('../assets/images/iconmealz.png')}
-                style={{ marginLeft:-40,width: 110, height: 80, resizeMode: 'contain' }} // Adjust size as needed
+                style={{ marginLeft:-10,width: 110, height: 80, resizeMode: 'contain', padding: 80, marginBottom:50}} // Adjust size as needed
               />
             </View>
           </View>

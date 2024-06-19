@@ -5,8 +5,6 @@ import { View, Image, Text, Button} from 'react-native';
 
 const RecipeCard = ({item, navigation}) => {
 
-
-
   const [info, setInfo] = useState({id: 0, title: " ", image: " ", summary: " "})
 
 
@@ -25,18 +23,19 @@ const RecipeCard = ({item, navigation}) => {
 
   return (
     //Bloque en blanco de la carta
-    <View className="block max-w-[12rem] m-4 bg-white rounded-lg shadow-lg"> 
+    <View className="block max-w-[12rem] m-4 bg-green-100 rounded-lg shadow-2xl p-70"> 
       <Image className= "rounded-t-lg h-48 w-full" 
         source={{ uri: item.image }}/> 
 
       <View className="px-3 pb-4 space-y-4"> 
-        <Text className="text-lg text-justify text-lg font-semibold pt-3">{item.title}</Text>  
+        <Text className="text-lg text-justify text-lg font-semibold pt-4 pb-4">{item.title}</Text>
         <Button
           title="View Recipe"
           onPress={() => {
             handleInfo()
             navigation.navigate("RecipeInfo", {recipeInfo: info})
           }}
+         
         />
       </View> 
     </View>

@@ -29,9 +29,9 @@ export function Home({navigation}) {
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Text style={styles.title}>Recetas que te recomendamos !!!!</Text>
+        <Text style={styles.title}>Recetas que te recomendamos</Text>
         {recipes.map(recipe => (
-          <RecipeCard item={recipe} navigation={navigation} />
+          <RecipeCard key= {recipe.id} item={recipe} navigation={navigation} />
         ))}
       </View>
     </ScrollView>
@@ -41,26 +41,12 @@ export function Home({navigation}) {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
+    backgroundColor: '#fff',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
   },
-  recipeCard: {
-    marginBottom: 20,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    overflow: 'hidden',
-    elevation: 3,
-  },
-  recipeImage: {
-    width: '100%',
-    height: 200,
-  },
-  recipeTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    padding: 10,
-  },
+ 
 });

@@ -14,10 +14,17 @@ export const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     marginVertical: 10,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#DCFCE7',
     borderRadius: 10,
     overflow: 'hidden',
     elevation: 3,
+    shadowColor: '#DCDCDC',
+    shadowOffset: {
+      width: 5,
+      height: 4,
+    },
+    shadowOpacity: 0.34,
+    shadowRadius: 4,
   },
   image: {
     width: 100,
