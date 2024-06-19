@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Image, Text, useWindowDimensions } from "react-native";
+import { View, Image, Text, useWindowDimensions,Button } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { ScrollView } from "react-native-gesture-handler";
 import HTML from 'react-native-render-html';

@@ -136,7 +136,7 @@ const UserRecipes = ({navigation}) => {
           console.error('Error adding recipe to favorites:', error);
         }
       } else {
-        console.error('No user is signed in. Please sign in to add favorites.');
+        console.error('Registrate porfavor para añadir a favoritos');
       }
 
   };
@@ -204,8 +204,7 @@ const UserRecipes = ({navigation}) => {
                 </View>
               </TouchableOpacity>
             ))}
-
-          <Text> Recetas recomendadas según tus ingredientes! </Text>
+          <Text className="text-center text-xl text-black font-bold mb-4 mt-3" >Recetas recomendadas según tus ingredientes!</Text>
           {recipes.map((item) => (
               <TouchableOpacity
                 key={item.id.toString()}
@@ -229,7 +228,7 @@ const UserRecipes = ({navigation}) => {
             ))}
 
           <View className = "flex-col items-centerflex flex-col">
-            <Text>
+            <Text className="text-center text-xl text-black font-bold mb-4 mt-3" >
               ¿Buscas una receta con un ingrediente específico? Ingrésalo aquí!
             </Text>
             <SearchRecipes navigation={navigation} />
@@ -238,8 +237,7 @@ const UserRecipes = ({navigation}) => {
         </View>
       ) : (
         <View style={styles.listContainer}>
-          <Text> Inicia sesión para guardar tus recetas favoritas! </Text>
-          <Text> Recetas recomendadas según tus ingredientes! </Text>
+          <Text className="text-center text-xl text-black font-bold mb-4 mt-3" > Recetas recomendadas según tus ingredientes! </Text>
           {recipes.map((item) => (
               <TouchableOpacity
                 key={item.id.toString()}
@@ -262,7 +260,7 @@ const UserRecipes = ({navigation}) => {
               </TouchableOpacity>
             ))}
           <View className = "flex-col items-centerflex flex-col">
-            <Text>
+            <Text className="text-center text-xl text-black font-bold mb-4 mt-3">
               ¿Buscas una receta con un ingrediente específico? Ingrésalo aquí!
             </Text>
             <SearchRecipes navigation={navigation} />
@@ -274,3 +272,4 @@ const UserRecipes = ({navigation}) => {
   )}
 
 export default UserRecipes;
+
