@@ -18,24 +18,31 @@ const Stack = createStackNavigator()
 export default function HomeScreen() {
     return (
    
-        <Tab.Navigator screenOptions={({route}) => (
-            {
-                headerShown: true, //No muestra el header de la app.
-                tabBarActiveTintColor: '#00a680', //El color de cuando esta sobre la vista seleccionada.
-                tabBarInactiveTintColor: '#646464', //Pone de color gris a los demas.
-                tabBarIcon: ({color, size}) => screenOptions(route,color,size), //Se llama a la funcion creada abajo      
-                tabBarLabelStyle: {
-                    fontFamily: 'Inter-ExtraBold',
-                },
-                headerTitle: () => (
-                    <View style={{width:1000,height:110}}>
-                        <Image source={require('../assets/images/Icon2.png')} style={{width: 60, height: 80}} resizeMode='contain'/>
-                    </View>
-                    
-                ),
-                headerTittleAlign: 'center',
-            }
-        )}>
+        <Tab.Navigator
+  screenOptions={({ route }) => ({
+    headerShown: true,
+    tabBarActiveTintColor: '#00a680',
+    tabBarInactiveTintColor: '#646464',
+    tabBarIcon: ({ color, size }) => screenOptions(route, color, size), // Call your custom tabBarIcon function
+    tabBarLabelStyle: {
+      fontFamily: 'Inter-ExtraBold',
+    },
+    headerTitle: () => (
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}> {/* Arrange icons horizontally and space them out */}
+        <Image
+          source={require('../assets/images/Icon2.png')}
+          style={{ width: 60, height: 80, resizeMode: 'contain' }} // Adjust size as needed
+        />
+        <View style={{ flex: 1, alignItems: 'center' }}> {/* Center the new image */}
+          <Image
+            source={require('../assets/images/iconmealz.png')}
+            style={{ marginLeft:100, width: 110, height: 80, resizeMode: 'contain' }} // Adjust size as needed
+          />
+        </View>
+      </View>
+    ),
+  })}
+>
             
                 <Tab.Screen name="Inicio"> 
                     {()=>(
