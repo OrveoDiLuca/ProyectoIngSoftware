@@ -7,9 +7,11 @@ import { styles } from "./StyleRecetas"; // Ensure this file exists and exports 
 import {SearchRecipes} from '../components/molecules/SearchRecipes';
 
 const BASE_URL = "https://api.spoonacular.com/recipes/complexSearch";
-const ALT_URL = "https://api.spoonacular.com/recipes/findByIngredients"
 const db = getFirestore();
+
 const API_KEY = "92168bc352924b298489d3c9454c2a5b"
+
+
 
 const calculateNutritionalValues = (nutrition) => {
   if (!nutrition || !nutrition.nutrients) {
@@ -41,11 +43,10 @@ const calculateNutritionalValues = (nutrition) => {
 
 const UserRecipes = ({navigation}) => {
   const [info, setInfo] = useState({id: 0, title: " ", image: " ", summary: " "})
-  const [recipes, setRecipes] = useState([]);
   const [userRecipes, setUserRecipes] = useState([]);
   const [ingredientRecipes, setIngredientRecipes] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const auth = getAuth();
   const user = auth.currentUser;
 
@@ -66,11 +67,10 @@ const UserRecipes = ({navigation}) => {
       const userDocRef = doc(db, 'Users', user.uid);
       const userData = await getDoc(userDocRef);
       try {
-        const response = await axios.get(ALT_URL, {
+        const response = await axios.get(BASE_URL, {
           params: {
-            ingredients: userData.data().ingredients.join(", "),
             apiKey: API_KEY,
-            number: 5,
+            includeIngredients: userData.data().ingredients.join(", "),
             addRecipeNutrition: true,
           }
         });
@@ -91,41 +91,24 @@ const UserRecipes = ({navigation}) => {
     }
   };
 
-  const fetchRecipes = async () => {
-    try {
-      const response = await axios.get(BASE_URL, {
-        params: {
-          apiKey: API_KEY, // Ensure your API key is valid
-          number: 3,
-          addRecipeNutrition: true,
-        }
-      });
-
-      if (response.data && response.data.results) {
-        setRecipes(response.data.results);
-      } else {
-        console.error('No results found');
-      }
-    } catch (error) {
-      console.error('Error fetching recipes:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setIsLoggedIn(user ? true : false);
+      fetchIngredientRecipes();
+      fecthUserRecipes();
     });
 
     return unsubscribe;
   }, []);
 
   useEffect(() =>{
+    fetchIngredientRecipes();
     fecthUserRecipes();
+
     fetchIngredientRecipes();
     fetchRecipes();
-  }, []);
+
 
   const addToFavorites = async (recipe) => {
     
@@ -187,7 +170,6 @@ const UserRecipes = ({navigation}) => {
   return (
     <View>
       {isLoggedIn ? (
-          fecthUserRecipes(),
           <View style={styles.listContainer}>
           {userRecipes.map((item) => (
               <TouchableOpacity
@@ -210,7 +192,7 @@ const UserRecipes = ({navigation}) => {
               </TouchableOpacity>
             ))}
           <Text className="text-center text-xl text-black font-bold mb-4 mt-3" >Recetas recomendadas según tus ingredientes!</Text>
-          {recipes.map((item) => (
+          {ingredientRecipes.map((item) => (
               <TouchableOpacity
                 key={item.id.toString()}
                 onPress={() => {
@@ -241,7 +223,7 @@ const UserRecipes = ({navigation}) => {
         </View>
       ) : (
         <View style={styles.listContainer}>
-          <Text className="text-center text-xl text-black font-bold mb-4 mt-3" > Recetas recomendadas según tus ingredientes! </Text>
+           <Text className="text-center text-xl text-black font-bold mb-4 mt-3" > Inicia sesión para poder guardar recetas y recibir recomendaciones! </Text>
           {recipes.map((item) => (
               <TouchableOpacity
                 key={item.id.toString()}
@@ -262,6 +244,7 @@ const UserRecipes = ({navigation}) => {
                 </View>
               </TouchableOpacity>
             ))}
+
           <View className = "flex-col items-centerflex flex-col">
             <Text className="text-center text-xl text-black font-bold mb-4 mt-3">
               ¿Buscas una receta con un ingrediente específico? Ingrésalo aquí!
