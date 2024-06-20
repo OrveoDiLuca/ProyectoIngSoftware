@@ -173,7 +173,7 @@ const AuthenticatedScreen = ({ user, handleAuthentication }) => {
         )}
       </View>
       <Text style={styles.title}>¡Bienvenido!</Text>
-      <Text style={styles.emailText}>{'Nombre: '+userData.name}</Text>
+      <Text style={styles.emailText}>{'Nombre: '+ userData.name}</Text>
       <Text style={styles.emailText}>{'Apellido: '}</Text>
       <Text style={styles.emailText}>{'Comida Favorita: '}</Text>
       <Text style={styles.emailText}>{user.email}</Text>

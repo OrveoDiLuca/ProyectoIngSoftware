@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Image, Text, Button} from 'react-native';
-
+import { getAuth, onAuthStateChanged } from '@firebase/auth';
+import { getFirestore, doc, updateDoc, arrayUnion, arrayRemove, getDoc } from '@firebase/firestore';
 
 //Atom de componente UI de las cartas de las recetas
 
+
+
 const RecipeCard = ({item, navigation}) => {
-
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [info, setInfo] = useState({id: 0, title: " ", image: " ", summary: " "})
-
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const db = getFirestore();
 
   const handleInfo = async () => {
       try {
@@ -20,7 +25,29 @@ const RecipeCard = ({item, navigation}) => {
         };
     };
 
+  const addToFavorites = async (recipe) => {
+      if (isLoggedIn) {
+        try {
+          const userDocRef = doc(db, 'Users', user.uid);
+          await updateDoc(userDocRef, {
+            recipes: arrayUnion(recipe)
+          });
+          console.log('Recipe added to favorites:', recipe.title);
+        } catch (error) {
+          console.error('Error adding recipe to favorites:', error);
+        }
+      } else {
+        console.error('Registrate porfavor para añadir a favoritos');
+      }
+  };
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsLoggedIn(user ? true : false);
+    });
+
+    return unsubscribe;
+  }, []);
 
   return (
     //Bloque en blanco de la carta
@@ -33,8 +60,10 @@ const RecipeCard = ({item, navigation}) => {
         <Button
           title="View Recipe"
           onPress={handleInfo}
-          
-          
+        />
+        <Button
+          title="Add to Favorites"
+          onPress={() => addToFavorites(item)}
         />
       </View> 
     </View>

@@ -88,6 +88,8 @@ const UserRecipes = ({navigation}) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setIsLoggedIn(user ? true : false);
+      fetchIngredientRecipes();
+      fecthUserRecipes();
     });
 
     return unsubscribe;
