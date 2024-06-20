@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
-import { initializeApp } from '@firebase/app';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from '@firebase/auth';
-import { getFirestore, addDoc, collection } from "firebase/firestore";
-
+import { TouchableOpacity, View, Text, TextInput, Button, StyleSheet, ScrollView, Image } from 'react-native';
+import { initializeApp } from 'firebase/app';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
+import * as ImagePicker from 'expo-image-picker';
+import { getFirestore, addDoc, collection, doc, updateDoc, getDoc} from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { FontAwesome } from 'react-native-vector-icons';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDoYXpg0KY7ICo7StLLIAMjh1S1obeEU_s",
@@ -17,6 +19,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 const AuthScreen = ({ email, setEmail, password, setPassword, name, setName, lastName, favoriteFood, setFavoriteFood, setLastName, isLogin, setIsLogin, handleAuthentication, create }) => {
   return (
@@ -24,7 +27,7 @@ const AuthScreen = ({ email, setEmail, password, setPassword, name, setName, las
       <Text style={styles.title}>{isLogin ? 'Iniciar sesión' : 'Registrarse'}</Text>
       {!isLogin && (
         <>
-       <TextInput
+          <TextInput
             style={styles.input}
             value={name}
             onChangeText={setName}
@@ -71,10 +74,107 @@ const AuthScreen = ({ email, setEmail, password, setPassword, name, setName, las
   );
 }
 
+
 const AuthenticatedScreen = ({ user, handleAuthentication }) => {
+  const [imageUrl, setImageUrl] = useState(null);
+  const userDocRef = doc(db, 'Users', user.uid);
+  const userData = getDoc(userDocRef);
+
+  useEffect(() => {
+    const fetchProfileImage = async () => {
+      const storage = getStorage();
+      const storageRef = ref(storage, `profile_images/${user.uid}`);
+
+      try {
+        const url = await getDownloadURL(storageRef);
+        setImageUrl(url);
+      } catch (error) {
+        setImageUrl(null);
+        console.log('No profile image found for the user:', error.message);
+      }
+    };
+
+    if (user) {
+      fetchProfileImage();
+    }
+  }, [user]);
+
+  const pickImage = async () => {
+    // Solicitar permisos para acceder a la galería
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Lo siento, necesitamos permisos para acceder a tu galería!');
+      return;
+    }
+
+    // Seleccionar imagen de la galería
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      uploadImage(result.assets[0].uri); 
+    }
+  };
+
+  const uploadImage = async (imageUri) => {
+    const userId = user.uid; 
+    const storageRef = ref(storage, `profile_images/${userId}`); 
+  
+    try {
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+  
+      await uploadBytes(storageRef, blob);
+  
+      const url = await getDownloadURL(storageRef);
+  
+      await updateProfileImage(url);
+  
+      setImageUrl(url);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Error uploading image: ' + error.message);
+    }
+  };
+
+  const updateProfileImage = async (userId) => {
+    const storageRef = ref(storage, `profile_images/${userId}`);
+  
+    try {
+      const url = await getDownloadURL(storageRef);
+      const userRef = doc(db, "Users", userId);
+  
+      await updateDoc(userRef, {
+        profileImageUrl: url
+      });
+  
+      console.log('URL de imagen de perfil actualizada correctamente en Firestore');
+    } catch (error) {
+    }
+  };
+
   return (
     <View style={styles.authContainer}>
-      <Text style={styles.title}>Welcome</Text>
+      <View style={styles.profileImageContainer}>
+        {imageUrl ? (
+          <Image source={{ uri: imageUrl }} style={styles.profileImage} />
+        ) : (
+          <TouchableOpacity onPress={pickImage}>
+            <View style={styles.imagePlaceholder}>
+              <Text style={styles.placeholderText}>Add Photo</Text>
+              <FontAwesome name="camera" size={24} style={styles.cameraIcon} />
+            </View>
+          </TouchableOpacity>
+        )}
+      </View>
+      <Text style={styles.title}>¡Bienvenido!</Text>
+      <Text style={styles.emailText}>{'Nombre: '}</Text>
+      <Text style={styles.emailText}>{'Apellido: '}</Text>
+      <Text style={styles.emailText}>{'Comida Favorita: '}</Text>
       <Text style={styles.emailText}>{user.email}</Text>
       <Button title="Logout" onPress={handleAuthentication} color="#e74c3c" />
     </View>
@@ -90,8 +190,6 @@ export function Account() {
   const [lastname, setLastName] = useState('');
   const [favoritefood, setFavoriteFood] = useState('');
 
-
-
   const auth = getAuth(app);
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -101,7 +199,6 @@ export function Account() {
     return () => unsubscribe();
   }, [auth]);
 
-  
   const handleAuthentication = async () => {
     try {
       if (user) {
@@ -116,9 +213,9 @@ export function Account() {
           console.log('User signed in successfully!');
         } else {
           // Sign up
-          await createUserWithEmailAndPassword(auth, email, password);
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
           console.log('User created successfully!');
-          create();
+          create(userCredential.user);
         }
       }
     } catch (error) {
@@ -126,27 +223,35 @@ export function Account() {
     }
   };
 
-  const create = () => {
-    addDoc(collection(db, "Users"), {
-      email: email,
-      favoritefood: favoritefood,
-      lastname: lastname,
-      name: name
-    }).then(() => {
-      console.log('data submitted');
-    }).catch((error) => {
-      console.log(error);
-    });
-  };
+  const create = async (user) => {
+    try {
+      const userRef = doc(db, "Users", user.uid);
+      const docSnap = await getDoc(userRef);
   
+      if (docSnap.exists()) {
+        await updateProfileImage(user.uid);
+      } else {
+        await addDoc(collection(db, "Users"), {
+          email: user.email,
+          favoritefood: favoritefood,
+          lastname: lastname,
+          name: name,
+          uid: user.uid,
+          profileImageUrl: null
+        });
+  
+        console.log('Usuario creado correctamente en Firestore');
+      }
+    } catch (error) {
+      console.error('Error al crear o actualizar usuario en Firestore:', error.message);
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {user ? (
-        // Muestra el correo de los usuarios si estan autenticados
         <AuthenticatedScreen user={user} handleAuthentication={handleAuthentication} />
-
       ) : (
-        // Muestra registro/inicio sesion si el usuario no esta autenticado
         <AuthScreen
           email={email}
           setEmail={setEmail}
@@ -168,7 +273,6 @@ export function Account() {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
@@ -184,6 +288,30 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 8,
     elevation: 3,
+  },
+  profileImageContainer: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  imagePlaceholder: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#ddd',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderText: {
+    color: '#888',
+    fontSize: 18,
+  },
+  cameraIcon: {
+    color: '#888',
+  },
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
   },
   title: {
     fontSize: 24,
@@ -202,8 +330,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   toggleText: {
-    color: '#3498db',
-    textAlign: 'center',
+    color: '#365'
   },
   bottomContainer: {
     marginTop: 20,
