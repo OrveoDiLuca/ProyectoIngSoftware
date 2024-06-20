@@ -9,7 +9,7 @@ import {SearchRecipes} from '../components/molecules/SearchRecipes';
 const BASE_URL = "https://api.spoonacular.com/recipes/complexSearch";
 const ALT_URL = "https://api.spoonacular.com/recipes/findByIngredients"
 const db = getFirestore();
-const API_KEY = "e803858775df4b07bcf8f34291b5bf58"
+const API_KEY = "92168bc352924b298489d3c9454c2a5b"
 
 const calculateNutritionalValues = (nutrition) => {
   if (!nutrition || !nutrition.nutrients) {
@@ -74,8 +74,12 @@ const UserRecipes = ({navigation}) => {
             addRecipeNutrition: true,
           }
         });
-        if (response.data && response.data.results) {
-          setIngredientRecipes(response.data.results);
+        console.log(response);
+        console.log(response.data.results)
+        console.log(response.data.results)
+        if (response.data) {
+          setIngredientRecipes(response.data);
+          
         } else {
           console.error('No results found');
         }
@@ -119,6 +123,7 @@ const UserRecipes = ({navigation}) => {
 
   useEffect(() =>{
     fecthUserRecipes();
+    fetchIngredientRecipes();
     fetchRecipes();
   }, []);
 
@@ -163,6 +168,7 @@ const UserRecipes = ({navigation}) => {
       .then(response => response.json())
       .then(data => {
         setInfo(data); // Guarda las recetas obtenidas en el estado
+        navigation.navigate("RecipeInfo", { recipeInfo: info })
       })
       .catch(error => {
         console.error(error);
@@ -188,7 +194,6 @@ const UserRecipes = ({navigation}) => {
                 key={item.id.toString()}
                 onPress={() => {
                   handleInfo(item={item}); 
-                  navigation.navigate("RecipeInfo", { recipeInfo: info });
                 }}
               >
                 <View style={styles.card}>
@@ -210,7 +215,6 @@ const UserRecipes = ({navigation}) => {
                 key={item.id.toString()}
                 onPress={() => {
                   handleInfo(item={item}); 
-                  navigation.navigate("RecipeInfo", { recipeInfo: info });
                 }}
               >
                 <View style={styles.card}>
@@ -243,7 +247,6 @@ const UserRecipes = ({navigation}) => {
                 key={item.id.toString()}
                 onPress={() => {
                   handleInfo(item={item}); 
-                  navigation.navigate("RecipeInfo", { recipeInfo: info });
                 }}
               >
                 <View style={styles.card}>
