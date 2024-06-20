@@ -46,7 +46,7 @@ export default function HomeScreen() {
       <Tab.Screen name="Recetas">
         {() => (
           <Stack.Navigator>
-            <Stack.Screen name="Mis recetas" component={Recipes} />
+            <Stack.Screen name="Recetas!" component={Recipes} />
             <Stack.Screen name="RecipeInfo" component={RecipeInfo} />
           </Stack.Navigator>
         )}
