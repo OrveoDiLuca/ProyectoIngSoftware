@@ -8,10 +8,7 @@ import {SearchRecipes} from '../components/molecules/SearchRecipes';
 
 const BASE_URL = "https://api.spoonacular.com/recipes/complexSearch";
 const db = getFirestore();
-
-const API_KEY = "92168bc352924b298489d3c9454c2a5b"
-
-
+const API_KEY = "c016da5a0e124df3a0390878cb339126"
 
 const calculateNutritionalValues = (nutrition) => {
   if (!nutrition || !nutrition.nutrients) {
@@ -74,12 +71,8 @@ const UserRecipes = ({navigation}) => {
             addRecipeNutrition: true,
           }
         });
-        console.log(response);
-        console.log(response.data.results)
-        console.log(response.data.results)
-        if (response.data) {
-          setIngredientRecipes(response.data);
-          
+        if (response.data && response.data.results) {
+          setIngredientRecipes(response.data.results);
         } else {
           console.error('No results found');
         }
@@ -105,10 +98,7 @@ const UserRecipes = ({navigation}) => {
   useEffect(() =>{
     fetchIngredientRecipes();
     fecthUserRecipes();
-
-    fetchIngredientRecipes();
-    fetchRecipes();
-
+  }, []);
 
   const addToFavorites = async (recipe) => {
     
@@ -151,7 +141,6 @@ const UserRecipes = ({navigation}) => {
       .then(response => response.json())
       .then(data => {
         setInfo(data); // Guarda las recetas obtenidas en el estado
-        navigation.navigate("RecipeInfo", { recipeInfo: info })
       })
       .catch(error => {
         console.error(error);
@@ -176,6 +165,7 @@ const UserRecipes = ({navigation}) => {
                 key={item.id.toString()}
                 onPress={() => {
                   handleInfo(item={item}); 
+                  navigation.navigate("RecipeInfo", { recipeInfo: info });
                 }}
               >
                 <View style={styles.card}>
@@ -197,6 +187,7 @@ const UserRecipes = ({navigation}) => {
                 key={item.id.toString()}
                 onPress={() => {
                   handleInfo(item={item}); 
+                  navigation.navigate("RecipeInfo", { recipeInfo: info });
                 }}
               >
                 <View style={styles.card}>
@@ -223,28 +214,8 @@ const UserRecipes = ({navigation}) => {
         </View>
       ) : (
         <View style={styles.listContainer}>
-           <Text className="text-center text-xl text-black font-bold mb-4 mt-3" > Inicia sesión para poder guardar recetas y recibir recomendaciones! </Text>
-          {recipes.map((item) => (
-              <TouchableOpacity
-                key={item.id.toString()}
-                onPress={() => {
-                  handleInfo(item={item}); 
-                }}
-              >
-                <View style={styles.card}>
-                  <Image source={{ uri: item.image }} style={styles.image} />
-                  <View style={styles.textContainer}>
-                    <Text style={styles.title}>{item.title}</Text>
-                    <Text style={styles.nutriente}>Calorías: {calculateNutritionalValues(item.nutrition).calories}</Text>
-                    <Text style={styles.nutriente}>Proteínas: {calculateNutritionalValues(item.nutrition).protein}</Text>
-                    <Text style={styles.nutriente}>Carbohidratos: {calculateNutritionalValues(item.nutrition).carbohydrates}</Text>
-                    <Text style={styles.nutriente}>Grasas: {calculateNutritionalValues(item.nutrition).fat}</Text>
-                    <Button title="Añadir a Favoritos" onPress={() => addToFavorites(item)} style={{ pointerEvents: 'box-none' }} />
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))}
-
+          <Text className="text-center text-xl text-black font-bold mb-4 mt-3" > Inicia sesión para poder guardar recetas y recibir recomendaciones! </Text>
+          
           <View className = "flex-col items-centerflex flex-col">
             <Text className="text-center text-xl text-black font-bold mb-4 mt-3">
               ¿Buscas una receta con un ingrediente específico? Ingrésalo aquí!
