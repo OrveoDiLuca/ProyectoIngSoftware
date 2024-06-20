@@ -54,8 +54,6 @@ export function Ingredients() {
     setNewIngredient('');
     setModalVisible(false);
 
-    console.log(newIngredient)
-
     if (isLoggedIn) {
       fecthUserIngredients();
       try {

@@ -89,14 +89,18 @@ const UserRecipes = ({navigation}) => {
     }
   };
 
+  useEffect(() => {
+    const unsubscribeRef = navigation.addListener('focus', () => {
+      fetchIngredientRecipes();
+      fecthUserRecipes();
+    });
+  
+    return () => unsubscribeRef();
+  }, [navigation]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setIsLoggedIn(user ? true : false);
-      if (user) { 
-        fetchIngredientRecipes();
-        fecthUserRecipes();
-      }
     });
 
     return unsubscribe;
