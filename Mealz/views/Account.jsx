@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, View, Text, TextInput, Button, StyleSheet, ScrollView, Image } from 'react-native';
+import { TouchableOpacity, View, Text, TextInput, Button, StyleSheet, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
 import * as ImagePicker from 'expo-image-picker';
@@ -76,111 +76,6 @@ const AuthScreen = ({ email, setEmail, password, setPassword, name, setName, las
 }
 
 
-const AuthenticatedScreen = ({ user, handleAuthentication }) => {
-  const [imageUrl, setImageUrl] = useState(null);
-  const userDocRef = doc(db, 'Users', user.uid);
-  const userData = getDoc(userDocRef);
-
-  useEffect(() => {
-    const fetchProfileImage = async () => {
-      const storage = getStorage();
-      const storageRef = ref(storage, `profile_images/${user.uid}`);
-
-      try {
-        const url = await getDownloadURL(storageRef);
-        setImageUrl(url);
-      } catch (error) {
-        setImageUrl(null);
-        console.log('No profile image found for the user:', error.message);
-      }
-    };
-
-    if (user) {
-      fetchProfileImage();
-    }
-  }, [user]);
-
-  const pickImage = async () => {
-    // Solicitar permisos para acceder a la galería
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      alert('Lo siento, necesitamos permisos para acceder a tu galería!');
-      return;
-    }
-
-    // Seleccionar imagen de la galería
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      uploadImage(result.assets[0].uri); 
-    }
-  };
-
-  const uploadImage = async (imageUri) => {
-    const userId = user.uid; 
-    const storageRef = ref(storage, `profile_images/${userId}`); 
-  
-    try {
-      const response = await fetch(imageUri);
-      const blob = await response.blob();
-  
-      await uploadBytes(storageRef, blob);
-  
-      const url = await getDownloadURL(storageRef);
-  
-      await updateProfileImage(url);
-  
-      setImageUrl(url);
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      alert('Error uploading image: ' + error.message);
-    }
-  };
-
-  const updateProfileImage = async (userId) => {
-    const storageRef = ref(storage, `profile_images/${userId}`);
-  
-    try {
-      const url = await getDownloadURL(storageRef);
-      const userRef = doc(db, "Users", userId);
-  
-      await updateDoc(userRef, {
-        profileImageUrl: url
-      });
-  
-      console.log('URL de imagen de perfil actualizada correctamente en Firestore');
-    } catch (error) {
-    }
-  };
-
-  return (
-    <View style={styles.authContainer}>
-      <View style={styles.profileImageContainer}>
-        {imageUrl ? (
-          <Image source={{ uri: imageUrl }} style={styles.profileImage} />
-        ) : (
-          <TouchableOpacity onPress={pickImage}>
-            <View style={styles.imagePlaceholder}>
-              <Text style={styles.placeholderText}>Add Photo</Text>
-              <FontAwesome name="camera" size={24} style={styles.cameraIcon} />
-            </View>
-          </TouchableOpacity>
-        )}
-      </View>
-      <Text style={styles.title}>¡Bienvenido!</Text>
-      <Text style={styles.emailText}>{'Nombre: '+ userData.name}</Text>
-      <Text style={styles.emailText}>{'Apellido: '}</Text>
-      <Text style={styles.emailText}>{'Comida Favorita: '}</Text>
-      <Text style={styles.emailText}>{user.email}</Text>
-      <Button title="Cerrar sesión" onPress={handleAuthentication} color="#e74c3c" />
-    </View>
-  );
-};
 
 export function Account() {
   const [email, setEmail] = useState('');
@@ -194,6 +89,8 @@ export function Account() {
 
 
   const auth = getAuth(app);
+
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
@@ -201,6 +98,136 @@ export function Account() {
 
     return () => unsubscribe();
   }, [auth]);
+
+
+  const AuthenticatedScreen = ({ handleAuthentication }) => {
+    const [imageUrl, setImageUrl] = useState(null);
+    const [userData, setUserData] = useState();
+    const [loading, setLoading] = useState(true)
+
+    const fetchUserData = async () => {
+      const userDocRef = doc(db, 'Users', user.uid);
+      const userD = await getDoc(userDocRef);
+      if (userD.exists()){
+        console.log(userD.data())
+        setUserData(userD)
+        setLoading(false)
+      }
+    }
+    
+
+  
+    useEffect(() => {
+      fetchUserData();
+      const fetchProfileImage = async () => {
+        const storage = getStorage();
+        const storageRef = ref(storage, `profile_images/${user.uid}`);
+  
+        try {
+          const url = await getDownloadURL(storageRef);
+          setImageUrl(url);
+        } catch (error) {
+          setImageUrl(null);
+          console.log('No profile image found for the user:', error.message);
+        }
+      };
+  
+      if (user) {
+        fetchProfileImage();
+      }
+    }, [user]);
+  
+    const pickImage = async () => {
+      // Solicitar permisos para acceder a la galería
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Lo siento, necesitamos permisos para acceder a tu galería!');
+        return;
+      }
+  
+      // Seleccionar imagen de la galería
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+  
+      if (!result.canceled) {
+        uploadImage(result.assets[0].uri); 
+      }
+    };
+  
+    const uploadImage = async (imageUri) => {
+      const userId = user.uid; 
+      const storageRef = ref(storage, `profile_images/${userId}`); 
+    
+      try {
+        const response = await fetch(imageUri);
+        const blob = await response.blob();
+    
+        await uploadBytes(storageRef, blob);
+    
+        const url = await getDownloadURL(storageRef);
+    
+        await updateProfileImage(url);
+    
+        setImageUrl(url);
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        alert('Error uploading image: ' + error.message);
+      }
+    };
+  
+    const updateProfileImage = async (userId) => {
+      const storageRef = ref(storage, `profile_images/${userId}`);
+    
+      try {
+        const url = await getDownloadURL(storageRef);
+        const userRef = doc(db, "Users", userId);
+    
+        await updateDoc(userRef, {
+          profileImageUrl: url
+        });
+    
+        console.log('URL de imagen de perfil actualizada correctamente en Firestore');
+      } catch (error) {
+      }
+    };
+
+    if (loading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+          <Text>Loading...</Text>
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.authContainer}>
+        <View style={styles.profileImageContainer}>
+          {imageUrl ? (
+            <Image source={{ uri: imageUrl }} style={styles.profileImage} />
+          ) : (
+            <TouchableOpacity onPress={pickImage}>
+              <View style={styles.imagePlaceholder}>
+                <Text style={styles.placeholderText}>Add Photo</Text>
+                <FontAwesome name="camera" size={24} style={styles.cameraIcon} />
+              </View>
+            </TouchableOpacity>
+          )}
+        </View>
+        <Text style={styles.title}>¡Bienvenido!</Text>
+        <Text style={styles.emailText}>Nombre:  {userData.data().name}</Text>
+        <Text style={styles.emailText}>Apellido: {userData.data().lastname}</Text>
+        <Text style={styles.emailText}>Comida Favorita: {userData.data().favoritefood}</Text>
+        <Text style={styles.emailText}>{user.email}</Text>
+        <Button title="Cerrar sesión" onPress={handleAuthentication} color="#e74c3c" />
+      </View>
+    );
+  };
+  
 
   const handleAuthentication = async () => {
     try {
@@ -255,7 +282,8 @@ export function Account() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {user ? (
-        <AuthenticatedScreen user={user} handleAuthentication={handleAuthentication} />
+        console.log(user),
+        <AuthenticatedScreen handleAuthentication={handleAuthentication} />
       ) : (
         <AuthScreen
           email={email}
