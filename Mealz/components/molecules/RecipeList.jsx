@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, FlatList, Image, Text } from 'react-native';
+import { FlatList } from 'react-native';
 import RecipeCard from '../atoms/RecipeCard';
 
 //Componente de listado de recetas
