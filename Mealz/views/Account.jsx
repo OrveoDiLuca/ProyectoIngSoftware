@@ -173,11 +173,11 @@ const AuthenticatedScreen = ({ user, handleAuthentication }) => {
         )}
       </View>
       <Text style={styles.title}>¡Bienvenido!</Text>
-      <Text style={styles.emailText}>{'Nombre: '}</Text>
+      <Text style={styles.emailText}>{'Nombre: '+userData.name}</Text>
       <Text style={styles.emailText}>{'Apellido: '}</Text>
       <Text style={styles.emailText}>{'Comida Favorita: '}</Text>
       <Text style={styles.emailText}>{user.email}</Text>
-      <Button title="Logout" onPress={handleAuthentication} color="#e74c3c" />
+      <Button title="Cerrar sesión" onPress={handleAuthentication} color="#e74c3c" />
     </View>
   );
 };
