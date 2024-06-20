@@ -24,13 +24,16 @@ export default function HomeScreen() {
           fontFamily: 'Inter-ExtraBold',
         },
         headerTitle: () => (
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
             <View style={{ flex: 1, alignItems: 'center' }}>
-              <Image
-                source={require('../assets/images/iconmealz.png')}
-                style={{ marginLeft:-10,width: 110, height: 80, resizeMode: 'contain', padding: 80, marginBottom:50}} // Adjust size as needed
-              />
-            </View>
+            <Image
+              source={require('../assets/images/iconmealz.png')}
+              style={{
+                width: 110,
+                height: 50,
+                resizeMode: 'contain',
+                marginLeft: -10,
+              }}
+            />
           </View>
         ),
       })}
