@@ -7,7 +7,7 @@ import axios from 'axios';
 //Componente de busqueda de recetas, usa el formato RecipeList para mostrar las recetas
 
 const BASE_URL = "https://api.spoonacular.com/recipes/complexSearch";
-const API_KEY = "c016da5a0e124df3a0390878cb339126"
+const API_KEY = "3f33d70e07e64b3fb20d0712dee835ef"
 
 const calculateNutritionalValues = (nutrition) => {
   if (!nutrition || !nutrition.nutrients) {

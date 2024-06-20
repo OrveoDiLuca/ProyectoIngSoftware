@@ -8,7 +8,7 @@ import {SearchRecipes} from '../components/molecules/SearchRecipes';
 
 const BASE_URL = "https://api.spoonacular.com/recipes/complexSearch";
 const db = getFirestore();
-const API_KEY = "92168bc352924b298489d3c9454c2a5b"
+const API_KEY = "3f33d70e07e64b3fb20d0712dee835ef"
 
 const calculateNutritionalValues = (nutrition) => {
   if (!nutrition || !nutrition.nutrients) {
