@@ -17,7 +17,7 @@ export function RecipeInfo() {
 
  const windowWidth = useWindowDimensions().width;
 
-  const [instructions, setInstructions] = useState({parsedInstructions: []});
+  //const [instructions, setInstructions] = useState({parsedInstructions: []});
 
 
 // Fetch and set the recipe instructions
