@@ -3,7 +3,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import {HomeScreen} from "./app/index"
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { View } from 'react-native';
 
 // El navigation container gestiona el estado de la navegacion de la app por lo que es sumamente importante. 
 

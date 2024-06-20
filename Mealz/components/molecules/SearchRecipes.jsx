@@ -6,7 +6,7 @@ import  RecipeList from "./RecipeList";
 
 //Componente de busqueda de recetas, usa el formato RecipeList para mostrar las recetas
 
-export function SearchRecipes() {
+export function SearchRecipes({navigation}) {
 
   {/*Fetch API con el endpoint debusqueda por recetas */}
 
@@ -45,7 +45,7 @@ export function SearchRecipes() {
 
       <View className = "flex pb-10" >
 
-       <RecipeList recipes={recipes}/>
+       <RecipeList recipes={recipes} navigation={navigation}/>
 
       </View>
  

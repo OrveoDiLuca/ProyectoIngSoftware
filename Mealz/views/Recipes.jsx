@@ -1,11 +1,11 @@
-import { View, Text } from 'react-native'
+import { ScrollView } from 'react-native'
 import React from 'react'
-import Recetas from '../components/Recetas'
+import UserRecipes from '../components/UserRecipes'
 
-export function Recipes() {
+export function Recipes({navigation}) {
   return (
-    <View>
-      <Recetas/>
-    </View>
+    <ScrollView>
+        <UserRecipes navigation={navigation}/>
+    </ScrollView>
   )
 }

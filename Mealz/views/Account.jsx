@@ -7,6 +7,7 @@ import { getFirestore, addDoc, collection, doc, updateDoc, getDoc} from "firebas
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { FontAwesome } from 'react-native-vector-icons';
 
+
 const firebaseConfig = {
   apiKey: "AIzaSyDoYXpg0KY7ICo7StLLIAMjh1S1obeEU_s",
   authDomain: "mealz-f885e.firebaseapp.com",
@@ -190,6 +191,8 @@ export function Account() {
   const [lastname, setLastName] = useState('');
   const [favoritefood, setFavoriteFood] = useState('');
 
+
+
   const auth = getAuth(app);
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -237,6 +240,8 @@ export function Account() {
           lastname: lastname,
           name: name,
           uid: user.uid,
+          ingredients: [],
+          recipes: [],
           profileImageUrl: null
         });
   
@@ -246,7 +251,7 @@ export function Account() {
       console.error('Error al crear o actualizar usuario en Firestore:', error.message);
     }
   };
-
+  
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {user ? (
