@@ -59,7 +59,7 @@ export function Ingredients() {
       try {
         const userDocRef = doc(db, 'Users', user.uid);
         updateDoc(userDocRef, {
-          ingredients: arrayUnion({newIngredient}) // Add the new ingredient to the user's "ingredients" array
+          ingredients: arrayUnion(newIngredient.name) // Add the new ingredient to the user's "ingredients" array
         });
         console.log('Ingredient added to favorites:', newIngredient);
       } catch (error) {
