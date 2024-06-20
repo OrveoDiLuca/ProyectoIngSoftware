@@ -35,7 +35,8 @@ export default function HomeScreen() {
                 alignSelf: 'center', // Ensures horizontal centering on most devices
                 marginTop: 'auto', // Positions logo vertically within available space
                 marginBottom: 'auto',
-                marginLeft: 150
+                marginLeft: 'auto',
+                marginRight:'auto'
               }}
             />
 
