@@ -6,6 +6,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { getFirestore, addDoc, collection, doc, updateDoc, getDoc} from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { FontAwesome } from 'react-native-vector-icons';
+import DropdownMenu from '../components/DropdownMenu'
 
 
 const firebaseConfig = {
@@ -22,7 +23,41 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-const AuthScreen = ({ email, setEmail, password, setPassword, name, setName, lastName, favoriteFood, setFavoriteFood, setLastName, isLogin, setIsLogin, handleAuthentication, create }) => {
+const AuthScreen = ({ email, setEmail, password, setPassword, name, setName, lastName, setLastName, favoriteFood, setFavoriteFood, isLogin, setIsLogin, handleAuthentication, create }) => {
+  const [error, setError] = useState('');
+
+  const validateFields = () => {
+    if (!isLogin) {
+      if (!name || !lastName || !favoriteFood || !email || !password) {
+        setError('Por favor completa todos los campos');
+        return false;
+      }
+    } else {
+      if (!email || !password) {
+        setError('Por favor completa todos los campos');
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const handleSubmit = () => {
+    if (!validateFields()) {
+      return;
+    }
+
+    setError('');
+    setName('');
+    setLastName('');
+    setFavoriteFood('');
+    
+    if (handleAuthentication) {
+      handleAuthentication();
+    } else if (create) {
+      create();
+    }
+  };
+  
   return (
     <View style={styles.authContainer}>
       <Text style={styles.title}>{isLogin ? 'Iniciar sesión' : 'Registrarse'}</Text>
@@ -62,8 +97,9 @@ const AuthScreen = ({ email, setEmail, password, setPassword, name, setName, las
         placeholder="Contraseña"
         secureTextEntry
       />
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
       <View style={styles.buttonContainer}>
-        <Button title={isLogin ? 'Iniciar sesión' : 'Registrarse'} onPress={handleAuthentication || create} color="#3498db" />
+        <Button title={isLogin ? 'Iniciar sesión' : 'Registrarse'} onPress={handleSubmit} color="#3498db" />
       </View>
 
       <View style={styles.bottomContainer}>
@@ -188,8 +224,8 @@ export function Account() {
   const [user, setUser] = useState(null); // Track user authentication state
   const [isLogin, setIsLogin] = useState(true);
   const [name, setName] = useState('');
-  const [lastname, setLastName] = useState('');
-  const [favoritefood, setFavoriteFood] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [favoriteFood, setFavoriteFood] = useState('');
 
 
 
@@ -207,6 +243,9 @@ export function Account() {
       if (user) {
         // Si el usuario esta autenticado, log out
         console.log('User logged out successfully!');
+        isLogin
+        setEmail('');
+        setPassword('');
         await signOut(auth);
       } else {
         // Sign in or sign up
@@ -236,8 +275,8 @@ export function Account() {
       } else {
         await addDoc(collection(db, "Users"), {
           email: user.email,
-          favoritefood: favoritefood,
-          lastname: lastname,
+          favoritefood: favoriteFood,
+          lastname: lastName,
           name: name,
           uid: user.uid,
           ingredients: [],
@@ -264,9 +303,9 @@ export function Account() {
           setPassword={setPassword}
           name={name}
           setName={setName}
-          lastname={lastname}
+          lastName={lastName}
           setLastName={setLastName}
-          favoritefood={favoritefood}
+          favoriteFood={favoriteFood}
           setFavoriteFood={setFavoriteFood}
           isLogin={isLogin}
           setIsLogin={setIsLogin}
@@ -344,6 +383,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlign: 'center',
     marginBottom: 20,
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
   },
 })
 
