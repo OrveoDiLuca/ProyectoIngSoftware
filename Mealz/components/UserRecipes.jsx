@@ -8,7 +8,7 @@ import {SearchRecipes} from '../components/molecules/SearchRecipes';
 
 const BASE_URL = "https://api.spoonacular.com/recipes/complexSearch";
 const db = getFirestore();
-const API_KEY = "92168bc352924b298489d3c9454c2a5b"
+const API_KEY = "3b7c403d51334e26b6ea7b0b7633f214"
 
 const calculateNutritionalValues = (nutrition) => {
   if (!nutrition || !nutrition.nutrients) {
@@ -42,6 +42,7 @@ const UserRecipes = ({navigation}) => {
   const [info, setInfo] = useState({id: 0, title: " ", image: " ", summary: " "})
   const [userRecipes, setUserRecipes] = useState([]);
   const [ingredientRecipes, setIngredientRecipes] = useState([]);
+  const [emptyRecipes, setEmptyRecipes] = useState([true])
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
   const auth = getAuth();
@@ -60,45 +61,33 @@ const UserRecipes = ({navigation}) => {
   }
 
   const fetchIngredientRecipes = async () => {
-    if (isLoggedIn) {
-      const userDocRef = doc(db, 'Users', user.uid);
-      const userData = await getDoc(userDocRef);
-      try {
-        const response = await axios.get(BASE_URL, {
-          params: {
-            apiKey: API_KEY,
-            includeIngredients: userData.data().ingredients.join(", "),
-            addRecipeNutrition: true,
+    if (isLoggedIn) { 
+        const userDocRef = doc(db, 'Users', user.uid);
+        const userData = await getDoc(userDocRef);
+        if (userData.data().ingredients.length != 0){
+          console.log(userData.data().ingredients)
+          setEmptyRecipes(false)
+          try {
+            const response = await axios.get(BASE_URL, {
+              params: {
+                apiKey: API_KEY,
+                includeIngredients: userData.data().ingredients.join(", "),
+                addRecipeNutrition: true,
+              }
+            });
+            if (response.data && response.data.results) {
+              setIngredientRecipes(response.data.results);
+            } else {
+              console.error('No results found');
+            }
+          } catch (error) {
+            console.error('Error fetching recipes:', error);
+          } finally {
+            setLoading(false);
           }
-        });
-        if (response.data && response.data.results) {
-          setIngredientRecipes(response.data.results);
-        } else {
-          console.error('No results found');
         }
-      } catch (error) {
-        console.error('Error fetching recipes:', error);
-      } finally {
-        setLoading(false);
-      }
     }
   };
-
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsLoggedIn(user ? true : false);
-      fetchIngredientRecipes();
-      fecthUserRecipes();
-    });
-
-    return unsubscribe;
-  }, []);
-
-  useEffect(() =>{
-    fetchIngredientRecipes();
-    fecthUserRecipes();
-  }, []);
 
   const addToFavorites = async (recipe) => {
     
@@ -148,6 +137,32 @@ const UserRecipes = ({navigation}) => {
       });
   };
 
+
+  useEffect(() => {
+    const unsubscribeRef = navigation.addListener('focus', () => {
+      fetchIngredientRecipes();
+      fecthUserRecipes();
+    });
+  
+    return () => unsubscribeRef();
+  }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsLoggedIn(user ? true : false);
+      fetchIngredientRecipes();
+      fecthUserRecipes();
+    });
+
+    return unsubscribe;
+  }, []);
+
+  useEffect(() =>{
+    fetchIngredientRecipes();
+    fecthUserRecipes();
+  }, []);
+
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -182,29 +197,38 @@ const UserRecipes = ({navigation}) => {
                 </View>
               </TouchableOpacity>
             ))}
-          <Text className="text-center text-xl text-black font-bold mb-4 mt-3" >Recetas recomendadas según tus ingredientes!</Text>
-          {ingredientRecipes.map((item) => (
-              <TouchableOpacity
-                key={item.id.toString()}
-                onPress={() => {
-                  handleInfo(item={item}); 
-                  
-                }}
-              >
-                <View style={styles.card}>
-                  <Image source={{ uri: item.image }} style={styles.image} />
-                  <View style={styles.textContainer}>
-                    <Text style={styles.title}>{item.title}</Text>
-                    <Text style={styles.nutriente}>Calorías: {calculateNutritionalValues(item.nutrition).calories}</Text>
-                    <Text style={styles.nutriente}>Proteínas: {calculateNutritionalValues(item.nutrition).protein}</Text>
-                    <Text style={styles.nutriente}>Carbohidratos: {calculateNutritionalValues(item.nutrition).carbohydrates}</Text>
-                    <Text style={styles.nutriente}>Grasas: {calculateNutritionalValues(item.nutrition).fat}</Text>
-                    <Button title="Añadir a Favoritos" onPress={() => addToFavorites(item)} style={{ pointerEvents: 'box-none' }} />
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))}
-
+          <View>
+            {emptyRecipes ? (
+              <Text className="text-center text-xl text-black font-bold mb-4 mt-3" >Añade ingredientes para poder recomendarte recetas!</Text>
+              ) : (
+              <View>
+                <Text className="text-center text-xl text-black font-bold mb-4 mt-3" >Recetas recomendadas según tus ingredientes!</Text>
+                <View>
+                  {ingredientRecipes.map((item) => (
+                        <TouchableOpacity
+                          key={item.id.toString()}
+                          onPress={() => {
+                            handleInfo(item={item}); 
+                            
+                          }}
+                        >
+                          <View style={styles.card}>
+                            <Image source={{ uri: item.image }} style={styles.image} />
+                            <View style={styles.textContainer}>
+                              <Text style={styles.title}>{item.title}</Text>
+                              <Text style={styles.nutriente}>Calorías: {calculateNutritionalValues(item.nutrition).calories}</Text>
+                              <Text style={styles.nutriente}>Proteínas: {calculateNutritionalValues(item.nutrition).protein}</Text>
+                              <Text style={styles.nutriente}>Carbohidratos: {calculateNutritionalValues(item.nutrition).carbohydrates}</Text>
+                              <Text style={styles.nutriente}>Grasas: {calculateNutritionalValues(item.nutrition).fat}</Text>
+                              <Button title="Añadir a Favoritos" onPress={() => addToFavorites(item)} style={{ pointerEvents: 'box-none' }} />
+                            </View>
+                          </View>
+                        </TouchableOpacity>
+                    ))}
+                </View>  
+              </View>
+            )}
+          </View>
           <View className = "flex-col items-centerflex flex-col">
             <Text className="text-center text-xl text-black font-bold mb-4 mt-3" >
               ¿Buscas una receta con un ingrediente específico? Ingrésalo aquí!

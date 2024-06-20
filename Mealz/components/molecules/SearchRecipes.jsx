@@ -1,13 +1,16 @@
 import { Text, View, TextInput, TouchableOpacity, Button } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
 import { Image, StyleSheet} from 'react-native';
 import axios from 'axios';
+import { getFirestore, doc, updateDoc, arrayUnion } from '@firebase/firestore';
+import { getAuth, onAuthStateChanged } from '@firebase/auth';
 
 //Componente de busqueda de recetas, usa el formato RecipeList para mostrar las recetas
 
 const BASE_URL = "https://api.spoonacular.com/recipes/complexSearch";
-const API_KEY = "c016da5a0e124df3a0390878cb339126"
+const API_KEY = "3b7c403d51334e26b6ea7b0b7633f214"
+const db = getFirestore()
 
 const calculateNutritionalValues = (nutrition) => {
   if (!nutrition || !nutrition.nutrients) {
@@ -38,10 +41,29 @@ const calculateNutritionalValues = (nutrition) => {
 export function SearchRecipes({navigation}) {
 
   {/*Fetch API con el endpoint debusqueda por recetas */}
-
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [searchText, setSearchText] = useState(''); //Salva el estado del input de la barra de busqueda
   const [recipes, setRecipes] = useState([]); //Guarda las recetas obtenidas en el estado
   const [info, setInfo] = useState({id: 0, title: " ", image: " ", summary: " "})
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  const addToFavorites = async (recipe) => {
+    if (isLoggedIn) {
+      try {
+        const userDocRef = doc(db, 'Users', user.uid);
+        await updateDoc(userDocRef, {
+          recipes: arrayUnion(recipe)
+        });
+        console.log('Recipe added to favorites:', recipe.title);
+      } catch (error) {
+        console.error('Error adding recipe to favorites:', error);
+      }
+    } else {
+      console.error('Registrate porfavor para añadir a favoritos');
+    }
+
+};
 
   const handleInfo = ({item}) => {
     fetch(`https://api.spoonacular.com/recipes/${item.id}/information?apiKey=${API_KEY}`)
@@ -73,6 +95,15 @@ export function SearchRecipes({navigation}) {
         console.error('Error fetching recipes:', error);
       }
     }
+
+
+    useEffect(() => {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        setIsLoggedIn(user ? true : false);
+      });
+  
+      return unsubscribe;
+    }, []);
 
   return (
     <View className =  "flex ">
