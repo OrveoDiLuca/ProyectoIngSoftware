@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Image,StyleSheet} from 'react-native';
 import  RecipeCard from '../components/atoms/RecipeCard';
 
 const BASE_URL = 'https://api.spoonacular.com';
-const API_KEY = '79d5d31d011848849104d4d813478b2d';
+const API_KEY = '92168bc352924b298489d3c9454c2a5b';
 
 export function Home({navigation}) {
   const [recipes, setRecipes] = useState([]);

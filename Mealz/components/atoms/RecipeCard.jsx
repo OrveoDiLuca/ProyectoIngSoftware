@@ -16,7 +16,7 @@ const RecipeCard = ({item, navigation}) => {
 
   const handleInfo = async () => {
       try {
-      const response = await fetch(`https://api.spoonacular.com/recipes/${item.id}/information?apiKey=c016da5a0e124df3a0390878cb339126`);
+      const response = await fetch(`https://api.spoonacular.com/recipes/${item.id}/information?apiKey=92168bc352924b298489d3c9454c2a5b`);
       const data = await response.json();
       setInfo(data);
       navigation.navigate("RecipeInfo", {recipeInfo: data})}

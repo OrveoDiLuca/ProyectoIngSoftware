@@ -10,7 +10,7 @@ const SearchIngredients = ({addIngredient}) => {
     const [selectedIngredient, setSelectedIngredient] = useState([{number: 1, offset: 0, results: [], totalResults: 0,}]);
 
     const handleSearch = () => {
-        fetch(`https://api.spoonacular.com/food/ingredients/search?query=${searchText}&number=1&apiKey=8d0eb616d8174abfae50988688e6a4ed`)
+        fetch(`https://api.spoonacular.com/food/ingredients/search?query=${searchText}&number=1&apiKey=92168bc352924b298489d3c9454c2a5b`)
           .then(response => response.json())
           .then(data => {
             setIngredients(data); // Guarda las recetas obtenidas en el estado

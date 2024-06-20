@@ -1,52 +1,87 @@
 import React, { useState } from 'react';
 import { Text, TouchableOpacity, StyleSheet, ScrollView, View, Modal, TextInput, Button} from 'react-native';
 import { Icon } from 'react-native-elements';
-import { Picker } from '@react-native-picker/picker';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import IngredientCard from '../components/atoms/IngredientCard';
 import SearchIngredients from '../components/molecules/SearchIngredients';
+import { getFirestore, doc, updateDoc, arrayUnion, arrayRemove, getDoc } from '@firebase/firestore';
+import { getAuth, onAuthStateChanged } from '@firebase/auth';
+import { useEffect } from 'react';
+
+const db = getFirestore();
 
 export function Ingredients() {
-  const [ingredients, setIngredients] = useState([]);
+
+
+
+
+  const [ingredients, setIngredients] = useState ([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [newIngredient, setNewIngredient] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [unit, setUnit] = useState('gramos');
-  const [expireDate, setExpireDate] = useState('');
-  const [date, setDate] = useState(new Date());
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [userIngredients, setUserIngredients] = useState([]);
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+
+  const fecthUserIngredients = async () => {
+    if (isLoggedIn) {
+      try {
+        const userDocRef = doc(db, 'Users', user.uid);
+        const userData = await getDoc(userDocRef);
+        setUserIngredients(userData.data().ingredients)
+      } catch (error) {
+        console.error('Error fetching user ingredients:', error);
+      }
+    } 
+  }
 
 
   const addIngredient = () => {
     setModalVisible(!modalVisible);
   };
 
-  const onChange = (e, selectedDate) => {
-    setExpireDate(selectedDate.toLocaleDateString());
-  };
+
 
   const handleNewIngredient = (newIngredient) => {
-    setNewIngredient(newIngredient["name"])
+    setNewIngredient(newIngredient)
   }
 
   const handleAddIngredient = () => {
-    const ingredientNumber = ingredients.length + 1;
-    setIngredients([...ingredients, {
-      name: newIngredient,
-      number: ingredientNumber,
-      quantity: quantity,
-      unit: unit,
-      expireDate: expireDate
-    }]);
+    
+    setIngredients([ newIngredient ]);
+      
     setNewIngredient('');
-    setQuantity('');
-    setUnit('gramos');
-    setExpireDate('');
     setModalVisible(false);
+
+    if (isLoggedIn) {
+      fecthUserIngredients();
+      try {
+        const userDocRef = doc(db, 'Users', user.uid);
+        updateDoc(userDocRef, {
+          ingredients: arrayUnion({newIngredient}) // Add the new ingredient to the user's "ingredients" array
+        });
+        console.log('Ingredient added to favorites:', newIngredient);
+      } catch (error) {
+        console.error('Error adding ingredient to favorites:', error);
+      }
+    } else {
+      console.error('Registrate porfavor para añadir a favoritos');
+    }
+
   };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsLoggedIn(user ? true : false);
+    });
+
+    return unsubscribe;
+  }, []);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.add}> Agregar Ingredientes </Text>
+      <Text style={styles.add}> Agregar Ingredientes Favoritos</Text>
       <TouchableOpacity onPress={addIngredient} style={styles.button}>
         <Icon type='material-community' name='plus-circle' color='white' size={35} />
       </TouchableOpacity>
@@ -67,35 +102,7 @@ export function Ingredients() {
             <Text style={styles.modalTitle}>Añadir Nuevo Ingrediente</Text>
             
             <SearchIngredients addIngredient={handleNewIngredient}/>
-
-            <View style={styles.row}>
-              <TextInput
-                style={styles.inputHalf}
-                placeholder="Cantidad"
-                value={quantity}
-                onChangeText={setQuantity}
-                keyboardType="numeric"
-              />
-              <Picker
-                selectedValue={unit}
-                style={styles.picker}
-                onValueChange={(itemValue) => setUnit(itemValue)}
-              >
-                <Picker.Item label="Gramos" value="gr" />
-                <Picker.Item label="Onzas" value="oz" />
-                <Picker.Item label="Mililitros" value="ml" />
-              </Picker>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.textStyle}>Fecha de vencimiento: </Text>
-              <DateTimePicker
-                mode={'date'}
-                value={date}
-                minimumDate={new Date()}
-                is24Hour={true}
-                onChange = {onChange}
-              />
-            </View>
+           
             <View style={styles.buttonContainer}>
               <Button
                 title="Añadir"
