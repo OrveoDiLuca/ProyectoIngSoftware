@@ -3,7 +3,7 @@ import { TouchableOpacity, View, Text, TextInput, Button, StyleSheet, ScrollView
 import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
 import * as ImagePicker from 'expo-image-picker';
-import { getFirestore, addDoc, collection, doc, updateDoc, getDoc} from "firebase/firestore";
+import { getFirestore, addDoc, collection, doc, updateDoc, getDoc, setDoc} from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { FontAwesome } from 'react-native-vector-icons';
 
@@ -253,27 +253,26 @@ export function Account() {
     }
   };
 
-  const create = async (user) => {
+  const create = async () => {
     try {
-      const userRef = doc(db, "Users", user.uid);
-      const docSnap = await getDoc(userRef);
-  
-      if (docSnap.exists()) {
-        await updateProfileImage(user.uid);
-      } else {
-        await addDoc(collection(db, "Users"), {
-          email: user.email,
-          favoritefood: favoritefood,
-          lastname: lastname,
-          name: name,
-          uid: user.uid,
-          ingredients: [],
-          recipes: [],
-          profileImageUrl: null
-        });
-  
+      const user = auth.currentUser;
+      const userId = user.uid; // Get the user ID
+      const userDocRef = doc(collection(db, "Users"), userId); // Create reference with user ID
+
+      setDoc(userDocRef, {
+        email: email,
+        favoritefood: favoritefood,
+        lastname: lastname,
+        name: name,
+        ingredients: [],
+        recipes: [],
+        profileImageUrl: null
+      }).then(() => {
         console.log('Usuario creado correctamente en Firestore');
-      }
+      }).catch((error) => {
+        console.log(error);
+      });
+
     } catch (error) {
       console.error('Error al crear o actualizar usuario en Firestore:', error.message);
     }
