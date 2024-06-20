@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Image, Text, Button} from 'react-native';
 
+
 //Atom de componente UI de las cartas de las recetas
 
 const RecipeCard = ({item, navigation}) => {
@@ -8,15 +9,15 @@ const RecipeCard = ({item, navigation}) => {
   const [info, setInfo] = useState({id: 0, title: " ", image: " ", summary: " "})
 
 
-  const handleInfo = () => {
-      fetch(`https://api.spoonacular.com/recipes/${item.id}/information?apiKey=2a3a5f802ec24072beae5c801581794f`)
-        .then(response => response.json())
-        .then(data => {
-          setInfo(data); // Guarda las recetas obtenidas en el estado
-        })
-        .catch(error => {
+  const handleInfo = async () => {
+      try {
+      const response = await fetch(`https://api.spoonacular.com/recipes/${item.id}/information?apiKey=2a3a5f802ec24072beae5c801581794f`);
+      const data = await response.json();
+      setInfo(data);
+      navigation.navigate("RecipeInfo", {recipeInfo: data})}
+        catch(error) {
           console.error(error);
-        });
+        };
     };
 
 
@@ -31,11 +32,9 @@ const RecipeCard = ({item, navigation}) => {
         <Text className="text-lg text-justify text-lg font-semibold pt-4 pb-4">{item.title}</Text>
         <Button
           title="View Recipe"
-          onPress={() => {
-            handleInfo()
-            navigation.navigate("RecipeInfo", {recipeInfo: info})
-          }}
-         
+          onPress={handleInfo}
+          
+          
         />
       </View> 
     </View>
