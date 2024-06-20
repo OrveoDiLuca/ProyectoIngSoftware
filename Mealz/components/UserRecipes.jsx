@@ -8,7 +8,7 @@ import {SearchRecipes} from '../components/molecules/SearchRecipes';
 
 const BASE_URL = "https://api.spoonacular.com/recipes/complexSearch";
 const db = getFirestore();
-const API_KEY = "c016da5a0e124df3a0390878cb339126"
+const API_KEY = "92168bc352924b298489d3c9454c2a5b"
 
 const calculateNutritionalValues = (nutrition) => {
   if (!nutrition || !nutrition.nutrients) {
@@ -141,6 +141,7 @@ const UserRecipes = ({navigation}) => {
       .then(response => response.json())
       .then(data => {
         setInfo(data); // Guarda las recetas obtenidas en el estado
+        navigation.navigate("RecipeInfo", { recipeInfo: info });
       })
       .catch(error => {
         console.error(error);
@@ -165,7 +166,7 @@ const UserRecipes = ({navigation}) => {
                 key={item.id.toString()}
                 onPress={() => {
                   handleInfo(item={item}); 
-                  navigation.navigate("RecipeInfo", { recipeInfo: info });
+                  
                 }}
               >
                 <View style={styles.card}>
@@ -187,7 +188,7 @@ const UserRecipes = ({navigation}) => {
                 key={item.id.toString()}
                 onPress={() => {
                   handleInfo(item={item}); 
-                  navigation.navigate("RecipeInfo", { recipeInfo: info });
+                  
                 }}
               >
                 <View style={styles.card}>

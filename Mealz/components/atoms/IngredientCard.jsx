@@ -9,7 +9,7 @@ const IngredientCard = ({ingredient, index}) => {
     return (
         <View style={styles.ingredientContainer} key={index}>
             <Text style={{ marginBottom: 10 }}>
-                Ingrediente {ingredient.number}: {ingredientName}, {ingredient.quantity} {ingredient.unit}, Fecha de vencimiento: {ingredient.expireDate}
+                {ingredientName}
             </Text>
         </View>
     )
