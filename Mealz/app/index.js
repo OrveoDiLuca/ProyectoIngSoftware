@@ -26,10 +26,19 @@ export default function HomeScreen() {
         headerTitle: () => (
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
             <View style={{ flex: 1, alignItems: 'center' }}>
-              <Image
-                source={require('../assets/images/iconmealz.png')}
-                style={{ marginLeft:-10,width: 110, height: 80, resizeMode: 'contain', padding: 80, marginBottom:50}} // Adjust size as needed
-              />
+            <Image
+              source={require('../assets/images/iconmealz.png')}
+              style={{
+                width: 110,
+                height: 80,
+                resizeMode: 'contain',
+                alignSelf: 'center', // Ensures horizontal centering on most devices
+                marginTop: 'auto', // Positions logo vertically within available space
+                marginBottom: 'auto',
+                marginLeft: 150
+              }}
+            />
+
             </View>
           </View>
         ),
