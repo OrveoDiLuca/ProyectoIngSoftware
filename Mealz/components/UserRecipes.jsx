@@ -84,22 +84,6 @@ const UserRecipes = ({navigation}) => {
     }
   };
 
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsLoggedIn(user ? true : false);
-      fetchIngredientRecipes();
-      fecthUserRecipes();
-    });
-
-    return unsubscribe;
-  }, []);
-
-  useEffect(() =>{
-    fetchIngredientRecipes();
-    fecthUserRecipes();
-  }, []);
-
   const addToFavorites = async (recipe) => {
     
       if (isLoggedIn) {
@@ -147,6 +131,32 @@ const UserRecipes = ({navigation}) => {
         console.error(error);
       });
   };
+
+
+  useEffect(() => {
+    const unsubscribeRef = navigation.addListener('focus', () => {
+      fetchIngredientRecipes();
+      fecthUserRecipes();
+    });
+  
+    return () => unsubscribeRef();
+  }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsLoggedIn(user ? true : false);
+      fetchIngredientRecipes();
+      fecthUserRecipes();
+    });
+
+    return unsubscribe;
+  }, []);
+
+  useEffect(() =>{
+    fetchIngredientRecipes();
+    fecthUserRecipes();
+  }, []);
+
 
   if (loading) {
     return (
