@@ -23,19 +23,19 @@ export function Ingredients() {
   const auth = getAuth();
   const user = auth.currentUser;
 
-
-  const fecthUserIngredients = async () => {
+  //Revisar fetchUserIngredients ingredients
+  const fetchUserIngredients = async () => {
     if (isLoggedIn) {
       try {
         const userDocRef = doc(db, 'Users', user.uid);
         const userData = await getDoc(userDocRef);
         setUserIngredients(userData.data().ingredients)
+        console.log('User ingredients:', userData.data().ingredients);
       } catch (error) {
         console.error('Error fetching user ingredients:', error);
       }
     } 
   }
-
 
   const addIngredient = () => {
     setModalVisible(!modalVisible);
@@ -47,21 +47,24 @@ export function Ingredients() {
     setNewIngredient(newIngredient)
   }
 
-  const handleAddIngredient = () => {
+    const handleAddIngredient = () => {
     
     setIngredients([ newIngredient ]);
       
     setNewIngredient('');
-    setModalVisible(false);
+    setModalVisible(false);}
 
+    const handleAddUserIngredient =  () => {
+     
+      
     if (isLoggedIn) {
-      fecthUserIngredients();
+      
       try {
         const userDocRef = doc(db, 'Users', user.uid);
         updateDoc(userDocRef, {
           ingredients: arrayUnion(newIngredient.name) // Add the new ingredient to the user's "ingredients" array
         });
-        console.log('Ingredient added to favorites:', newIngredient);
+        console.log('Ingredient added to favorites:', newIngredient.name);
       } catch (error) {
         console.error('Error adding ingredient to favorites:', error);
       }
@@ -69,26 +72,48 @@ export function Ingredients() {
       console.error('Registrate porfavor para añadir a favoritos');
     }
 
+    setNewIngredient('');
+    setModalVisible(false);
+
+
   };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setIsLoggedIn(user ? true : false);
+      if (user) {
+        fetchUserIngredients();}
     });
-
     return unsubscribe;
+
+  }, []);
+
+  useEffect(() => {
+    fetchUserIngredients();
+
   }, []);
 
   return (
+   
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.add}> Agregar Ingredientes Favoritos</Text>
+      <Text style={styles.add}> Agregar Ingredientes Favoritos </Text>
       <TouchableOpacity onPress={addIngredient} style={styles.button}>
         <Icon type='material-community' name='plus-circle' color='white' size={35} />
       </TouchableOpacity>
-      {ingredients.map((ingredient, index) => (
-        <IngredientCard ingredient = {ingredient} index = {index}/>
-      ))}
+
       
+    {
+      isLoggedIn ? (
+                    (userIngredients).map((ingredient, index) => (
+                      <IngredientCard ingredient={ingredient} index={index} />
+                    )
+                  )) : (ingredients).map((ingredient, index) => (
+        <IngredientCard ingredient={ingredient} index={index} key={index} />
+      ))
+    }
+      
+       
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -97,22 +122,28 @@ export function Ingredients() {
           setModalVisible(!modalVisible);
         }}
       >
-        <View style={styles.centeredView}>
+        <View style={styles.centeredView}> 
           <View style={styles.modalView}>
             <Text style={styles.modalTitle}>Añadir Nuevo Ingrediente</Text>
             
-            <SearchIngredients addIngredient={handleNewIngredient}/>
+            <SearchIngredients addIngredient={handleNewIngredient}/> 
            
             <View style={styles.buttonContainer}>
               <Button
                 title="Añadir"
-                onPress={handleAddIngredient}
-              />
+                onPress={() => {
+                  if (isLoggedIn) {
+                    handleAddUserIngredient();
+                  } else {
+                    handleAddIngredient();
+                  }
+                }}
+              /> 
               <Button
-                title="Cancelar"
+                title="Salir"
                 color="red"
-                onPress={() => setModalVisible(!modalVisible)}
-              />
+                onPress={() => setModalVisible(!modalVisible)} 
+              /> 
             </View>
           </View>
         </View>
