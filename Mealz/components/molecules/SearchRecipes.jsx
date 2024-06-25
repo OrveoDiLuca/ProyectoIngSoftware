@@ -1,12 +1,17 @@
 import { Text, View, TextInput, TouchableOpacity, Button } from "react-native";
 import { useState } from "react";
+import { useEffect } from "react";
 import React from "react";
 import { Image, StyleSheet} from 'react-native';
 import axios from 'axios';
+import { getFirestore, doc, updateDoc, arrayUnion, arrayRemove, getDoc } from '@firebase/firestore';
+import { getAuth, onAuthStateChanged } from '@firebase/auth';
+
 
 //Componente de busqueda de recetas, usa el formato RecipeList para mostrar las recetas
 
 const BASE_URL = "https://api.spoonacular.com/recipes/complexSearch";
+const db = getFirestore();
 const API_KEY = "3f33d70e07e64b3fb20d0712dee835ef"
 
 const calculateNutritionalValues = (nutrition) => {
@@ -41,7 +46,12 @@ export function SearchRecipes({navigation}) {
 
   const [searchText, setSearchText] = useState(''); //Salva el estado del input de la barra de busqueda
   const [recipes, setRecipes] = useState([]); //Guarda las recetas obtenidas en el estado
+  const [userRecipes, setUserRecipes] = useState([]);
   const [info, setInfo] = useState({id: 0, title: " ", image: " ", summary: " "})
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const auth = getAuth();
+  const user = auth.currentUser;
 
   const handleInfo = ({item}) => {
     fetch(`https://api.spoonacular.com/recipes/${item.id}/information?apiKey=${API_KEY}`)
@@ -53,6 +63,46 @@ export function SearchRecipes({navigation}) {
         console.error(error);
       });
   };
+
+  //Add to favorites no existía porque el codigo de las lineas 67-106 no estaba en este componente
+  useEffect(() => {
+    fecthUserRecipes();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsLoggedIn(user ? true : false);
+    });
+    return unsubscribe;
+  }, []);
+
+  const fecthUserRecipes = async () => {
+    if (isLoggedIn) {
+      try {
+        const userDocRef = doc(db, 'Users', user.uid);
+        const userData = await getDoc(userDocRef);
+        setUserRecipes(userData.data().recipes)
+      } catch (error) {
+        console.error('Error fetching user recipes:', error);
+      }
+    } 
+  }
+
+  const addToFavorites = async (recipe) => {
+    
+    if (isLoggedIn) {
+      fecthUserRecipes();
+      try {
+        const userDocRef = doc(db, 'Users', user.uid);
+        await updateDoc(userDocRef, {
+          recipes: arrayUnion(recipe)
+        });
+        console.log('Recipe added to favorites:', recipe.title);
+      } catch (error) {
+        console.error('Error adding recipe to favorites:', error);
+      }
+    } else {
+      console.error('Registrate porfavor para añadir a favoritos');
+    }
+
+};
 
   const handleSearch = async () => {
       try {

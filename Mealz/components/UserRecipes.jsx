@@ -1,7 +1,7 @@
 import { View, Text, ActivityIndicator, Image, Button, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { getFirestore, doc, updateDoc, arrayUnion, arrayRemove, getDoc } from '@firebase/firestore';
+import { getFirestore, doc, updateDoc, arrayUnion, arrayRemove, getDoc } from '@firebase/firestore'; 
 import { getAuth, onAuthStateChanged } from '@firebase/auth';
 import { styles } from "./StyleRecetas"; // Ensure this file exists and exports a valid styles object
 import {SearchRecipes} from '../components/molecules/SearchRecipes';
@@ -84,6 +84,20 @@ const UserRecipes = ({navigation}) => {
     }
   };
 
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsLoggedIn(user ? true : false);
+    });
+    return unsubscribe;
+  }, []);
+
+  useEffect(() =>{
+    fetchIngredientRecipes();
+    fecthUserRecipes();
+   // fetchRecipes();
+  }, []);
+
   const addToFavorites = async (recipe) => {
     
       if (isLoggedIn) {
@@ -98,7 +112,7 @@ const UserRecipes = ({navigation}) => {
           console.error('Error adding recipe to favorites:', error);
         }
       } else {
-        console.error('Registrate porfavor para añadir a favoritos');
+        console.error('Please registrate to add to favorites');
       }
 
   };
@@ -133,30 +147,26 @@ const UserRecipes = ({navigation}) => {
   };
 
 
-  useEffect(() => {
-    const unsubscribeRef = navigation.addListener('focus', () => {
-      fetchIngredientRecipes();
-      fecthUserRecipes();
-    });
+   useEffect(() => {
+     const unsubscribeRef = navigation.addListener('focus', () => {
+       fetchIngredientRecipes();
+       fecthUserRecipes();
+     });
   
-    return () => unsubscribeRef();
-  }, [navigation]);
+     return () => unsubscribeRef();
+   }, [navigation]);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsLoggedIn(user ? true : false);
-      fetchIngredientRecipes();
-      fecthUserRecipes();
-    });
+  // useEffect(() => {
+  //   const unsubscribe = onAuthStateChanged(auth, (user) => {
+  //     setIsLoggedIn(user ? true : false);
+  //     fetchIngredientRecipes();
+  //     fecthUserRecipes();
+  //   });
 
-    return unsubscribe;
-  }, []);
+  //   return unsubscribe;
+  // }, []);
 
-  useEffect(() =>{
-    fetchIngredientRecipes();
-    fecthUserRecipes();
-  }, []);
-
+ 
 
   if (loading) {
     return (
@@ -170,13 +180,15 @@ const UserRecipes = ({navigation}) => {
   return (
     <View>
       {isLoggedIn ? (
+          fecthUserRecipes(),
           <View style={styles.listContainer}>
+          <Text className="text-center text-xl text-black font-bold mb-4 mt-3" >Your favorite recipes!</Text>
           {userRecipes.map((item) => (
               <TouchableOpacity
                 key={item.id.toString()}
                 onPress={() => {
-                  handleInfo(item={item}); 
-                  
+                  handleInfo(item={item}); // no estaba
+                  navigation.navigate("RecipeInfo", { recipeInfo: info }); // no estaba
                 }}
               >
                 <View style={styles.card}>
@@ -187,18 +199,19 @@ const UserRecipes = ({navigation}) => {
                     <Text style={styles.nutriente}>Proteínas: {calculateNutritionalValues(item.nutrition).protein}</Text>
                     <Text style={styles.nutriente}>Carbohidratos: {calculateNutritionalValues(item.nutrition).carbohydrates}</Text>
                     <Text style={styles.nutriente}>Grasas: {calculateNutritionalValues(item.nutrition).fat}</Text>
-                    <Button title="Eliminar de Favoritos" onPress={() => removeFromFavorites(item)} color = 'red' style={{ pointerEvents: 'box-none' }} />
+                    <Button title="Eliminate from favorites" onPress={() => removeFromFavorites(item)} color = 'red' style={{ pointerEvents: 'box-none' }} />
                   </View>
                 </View>
               </TouchableOpacity>
             ))}
-          <Text className="text-center text-xl text-black font-bold mb-4 mt-3" >Recetas recomendadas según tus ingredientes!</Text>
+            
+          <Text className="text-center text-xl text-black font-bold mb-4 mt-3" >Recommendations based on your ingredients!</Text>
           {ingredientRecipes.map((item) => (
               <TouchableOpacity
                 key={item.id.toString()}
                 onPress={() => {
                   handleInfo(item={item}); 
-                  
+                  navigation.navigate("RecipeInfo", { recipeInfo: info }); // no estaba
                 }}
               >
                 <View style={styles.card}>
@@ -209,7 +222,7 @@ const UserRecipes = ({navigation}) => {
                     <Text style={styles.nutriente}>Proteínas: {calculateNutritionalValues(item.nutrition).protein}</Text>
                     <Text style={styles.nutriente}>Carbohidratos: {calculateNutritionalValues(item.nutrition).carbohydrates}</Text>
                     <Text style={styles.nutriente}>Grasas: {calculateNutritionalValues(item.nutrition).fat}</Text>
-                    <Button title="Añadir a Favoritos" onPress={() => addToFavorites(item)} style={{ pointerEvents: 'box-none' }} />
+                    <Button title="Add to Favorites" onPress={() => addToFavorites(item)} style={{ pointerEvents: 'box-none' }} />
                   </View>
                 </View>
               </TouchableOpacity>
