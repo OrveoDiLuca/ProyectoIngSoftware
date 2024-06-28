@@ -5,6 +5,7 @@ import { getFirestore, doc, updateDoc, arrayUnion, arrayRemove, getDoc } from '@
 import { getAuth, onAuthStateChanged } from '@firebase/auth';
 import { styles } from "./StyleRecetas"; // Ensure this file exists and exports a valid styles object
 import {SearchRecipes} from '../components/molecules/SearchRecipes';
+import {FilterSearch} from "./molecules/FilterSearch"
 
 const BASE_URL = "https://api.spoonacular.com/recipes/complexSearch";
 const db = getFirestore();
@@ -187,7 +188,7 @@ const UserRecipes = ({navigation}) => {
               <TouchableOpacity
                 key={item.id.toString()}
                 onPress={() => {
-                  handleInfo(item={item}); // no estaba
+                  handleInfo(item={item}); // no estab
                   navigation.navigate("RecipeInfo", { recipeInfo: info }); // no estaba
                 }}
               >
@@ -238,15 +239,17 @@ const UserRecipes = ({navigation}) => {
         </View>
       ) : (
         <View style={styles.listContainer}>
-          <Text className="text-center text-xl text-black font-bold mb-4 mt-3" > Inicia sesión para poder guardar recetas y recibir recomendaciones! </Text>
+          <Text className="text-center text-xl text-black font-bold mb-4 mt-3" >Log in to save recipes and receive recommendations! </Text>
           
           <View className = "flex-col items-centerflex flex-col">
             <Text className="text-center text-xl text-black font-bold mb-4 mt-3">
-              ¿Buscas una receta con un ingrediente específico? Ingrésalo aquí!
+            Looking for a recipe with a specific ingredient? Enter it here!
             </Text>
             <SearchRecipes navigation={navigation} />
           </View>
-            
+          <View>
+            <FilterSearch/>
+          </View>
         </View>
     )}
     </View>
