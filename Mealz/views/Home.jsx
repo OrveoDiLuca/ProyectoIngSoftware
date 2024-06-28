@@ -29,7 +29,7 @@ export function Home({navigation}) {
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Text style={styles.title}>Recetas que te recomendamos</Text>
+        <Text style={styles.title}>Recipes that we recommend</Text>
         {recipes.map(recipe => (
           <RecipeCard key= {recipe.id} item={recipe} navigation={navigation} />
         ))}
