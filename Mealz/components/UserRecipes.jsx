@@ -235,6 +235,9 @@ const UserRecipes = ({navigation}) => {
             </Text>
             <SearchRecipes navigation={navigation} />
           </View>
+          <View>
+            <FilterSearch/>
+          </View>
 
         </View>
       ) : (
@@ -247,13 +250,18 @@ const UserRecipes = ({navigation}) => {
             </Text>
             <SearchRecipes navigation={navigation} />
           </View>
-          <View>
-            <FilterSearch/>
-          </View>
+          
         </View>
     )}
     </View>
   )}
 
 export default UserRecipes;
+
+
+
+
+
+
+
 
