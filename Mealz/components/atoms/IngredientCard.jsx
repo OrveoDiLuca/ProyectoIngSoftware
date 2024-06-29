@@ -2,8 +2,8 @@ import React from 'react';
 import { View, Image, Text, StyleSheet } from 'react-native';
 
 const IngredientCard = ({ingredient, index}) => {
-    const firstChar = ingredient.name[0].toUpperCase();
-    const remainingStr = ingredient.name.slice(1);
+    const firstChar = ingredient[0].toUpperCase();
+    const remainingStr = ingredient.slice(1);
     const ingredientName = firstChar + remainingStr;
     
     return (

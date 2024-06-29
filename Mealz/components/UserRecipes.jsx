@@ -9,7 +9,7 @@ import {FilterSearch} from "./molecules/FilterSearch"
 
 const BASE_URL = "https://api.spoonacular.com/recipes/complexSearch";
 const db = getFirestore();
-const API_KEY = "3f33d70e07e64b3fb20d0712dee835ef"
+const API_KEY = "c016da5a0e124df3a0390878cb339126"
 
 const calculateNutritionalValues = (nutrition) => {
   if (!nutrition || !nutrition.nutrients) {
@@ -48,7 +48,7 @@ const UserRecipes = ({navigation}) => {
   const auth = getAuth();
   const user = auth.currentUser;
 
-  const fecthUserRecipes = async () => {
+  const fetchUserRecipes = async () => {
     if (isLoggedIn) {
       try {
         const userDocRef = doc(db, 'Users', user.uid);
@@ -64,16 +64,21 @@ const UserRecipes = ({navigation}) => {
     if (isLoggedIn) {
       const userDocRef = doc(db, 'Users', user.uid);
       const userData = await getDoc(userDocRef);
+
+      const arrayLength = userData.data().ingredients.length;
+      const randomIndex = Math.floor(Math.random() * arrayLength);
+
       try {
         const response = await axios.get(BASE_URL, {
           params: {
             apiKey: API_KEY,
-            includeIngredients: userData.data().ingredients.join(", "),
+            includeIngredients: userData.data().ingredients[randomIndex],
             addRecipeNutrition: true,
           }
         });
         if (response.data && response.data.results) {
           setIngredientRecipes(response.data.results);
+          console.log(ingredientRecipes)
         } else {
           console.error('No results found');
         }
@@ -85,22 +90,7 @@ const UserRecipes = ({navigation}) => {
     }
   };
 
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsLoggedIn(user ? true : false);
-    });
-    return unsubscribe;
-  }, []);
-
-  useEffect(() =>{
-    fetchIngredientRecipes();
-    fecthUserRecipes();
-   // fetchRecipes();
-  }, []);
-
   const addToFavorites = async (recipe) => {
-    
       if (isLoggedIn) {
         fecthUserRecipes();
         try {
@@ -115,7 +105,6 @@ const UserRecipes = ({navigation}) => {
       } else {
         console.error('Please registrate to add to favorites');
       }
-
   };
 
   const removeFromFavorites = async (recipe) => {
@@ -148,24 +137,28 @@ const UserRecipes = ({navigation}) => {
   };
 
 
-   useEffect(() => {
-     const unsubscribeRef = navigation.addListener('focus', () => {
-       fetchIngredientRecipes();
-       fecthUserRecipes();
-     });
-  
-     return () => unsubscribeRef();
-   }, [navigation]);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsLoggedIn(user ? true : false);
+    });
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    if (isLoggedIn) { // Check if isLoggedIn state is true
+      fetchIngredientRecipes();
+      fetchUserRecipes();
+    }
+  }, [isLoggedIn]);
 
   // useEffect(() => {
-  //   const unsubscribe = onAuthStateChanged(auth, (user) => {
-  //     setIsLoggedIn(user ? true : false);
+  //   const unsubscribeRef = navigation.addListener('focus', () => {
   //     fetchIngredientRecipes();
-  //     fecthUserRecipes();
+  //     fetchUserRecipes();
   //   });
 
-  //   return unsubscribe;
-  // }, []);
+  //   return () => unsubscribeRef();
+  // }, [navigation]);
 
  
 
@@ -181,7 +174,6 @@ const UserRecipes = ({navigation}) => {
   return (
     <View>
       {isLoggedIn ? (
-          fecthUserRecipes(),
           <View style={styles.listContainer}>
           <Text className="text-center text-xl text-black font-bold mb-4 mt-3" >Your favorite recipes!</Text>
           {userRecipes.map((item) => (
@@ -212,7 +204,7 @@ const UserRecipes = ({navigation}) => {
                 key={item.id.toString()}
                 onPress={() => {
                   handleInfo(item={item}); 
-                  navigation.navigate("RecipeInfo", { recipeInfo: info }); // no estaba
+                  navigation.navigate("RecipeInfo", { recipeInfo: info });
                 }}
               >
                 <View style={styles.card}>
