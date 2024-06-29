@@ -11,7 +11,7 @@ export function FilterSearch() {
         console.log('Fetching Recipes with Filters:', filters); // Log para verificar los filtros en la solicitud
         const response = await axios.get('https://api.spoonacular.com/recipes/complexSearch', {
           params: {
-            apiKey: 'cfc2ce5786404fceb4c207ddcad3b92f',
+            apiKey: '79d5d31d011848849104d4d813478b2d',
             number: 10, // Limitar el número de resultados
             ...filters,
           },

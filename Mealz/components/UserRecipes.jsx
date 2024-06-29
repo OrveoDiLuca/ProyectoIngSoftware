@@ -92,7 +92,6 @@ const UserRecipes = ({navigation}) => {
 
   const addToFavorites = async (recipe) => {
       if (isLoggedIn) {
-        fecthUserRecipes();
         try {
           const userDocRef = doc(db, 'Users', user.uid);
           await updateDoc(userDocRef, {
@@ -150,16 +149,6 @@ const UserRecipes = ({navigation}) => {
       fetchUserRecipes();
     }
   }, [isLoggedIn]);
-
-  // useEffect(() => {
-  //   const unsubscribeRef = navigation.addListener('focus', () => {
-  //     fetchIngredientRecipes();
-  //     fetchUserRecipes();
-  //   });
-
-  //   return () => unsubscribeRef();
-  // }, [navigation]);
-
  
 
   if (loading) {
