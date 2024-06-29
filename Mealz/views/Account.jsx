@@ -6,6 +6,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { getFirestore, addDoc, collection, doc, updateDoc, getDoc, setDoc} from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { FontAwesome } from 'react-native-vector-icons';
+import DropdownMenu from '../components/DropdownMenu'
 
 
 const firebaseConfig = {
@@ -22,7 +23,45 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-const AuthScreen = ({ email, setEmail, password, setPassword, name, setName, lastName, favoriteFood, setFavoriteFood, setLastName, isLogin, setIsLogin, handleAuthentication, create }) => {
+const AuthScreen = ({ email, setEmail, password, setPassword, name, setName, lastName, setLastName, favoriteFood, setFavoriteFood, isLogin, setIsLogin, handleAuthentication, create }) => {
+  const [error, setError] = useState('');
+
+  const validateFields = () => {
+    if (!isLogin) {
+      if (!name || !lastName || !favoriteFood || !email || !password) {
+        setError('Por favor completa todos los campos');
+        return false;
+      }
+    } else {
+      if (!email || !password) {
+        setError('Por favor completa todos los campos');
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const handleSubmit = () => {
+    if (!validateFields()) {
+      return;
+    }
+
+    setError('');
+    setName('');
+    setLastName('');
+    setFavoriteFood('');
+    
+    if (handleAuthentication) {
+      handleAuthentication();
+    } else if (create) {
+      create();
+    }
+  };
+  
+  const capitalizeFirstLetter = (text) => {
+    return text && text.charAt(0).toUpperCase() + text.slice(1);
+  };
+
   return (
     <View style={styles.authContainer}>
       <Text style={styles.title}>{isLogin ? 'Iniciar sesión' : 'Registrarse'}</Text>
@@ -31,19 +70,19 @@ const AuthScreen = ({ email, setEmail, password, setPassword, name, setName, las
           <TextInput
             style={styles.input}
             value={name}
-            onChangeText={setName}
+            onChangeText={(text) => setName(capitalizeFirstLetter(text))}
             placeholder="Nombre"
           />
           <TextInput
             style={styles.input}
             value={lastName}
-            onChangeText={setLastName}
+            onChangeText={(text) => setLastName(capitalizeFirstLetter(text))}
             placeholder="Apellido"
           />
           <TextInput
             style={styles.input}
             value={favoriteFood}
-            onChangeText={setFavoriteFood}
+            onChangeText={(text) => setFavoriteFood(capitalizeFirstLetter(text))}
             placeholder="Comida favorita"
           />
         </>
@@ -62,8 +101,9 @@ const AuthScreen = ({ email, setEmail, password, setPassword, name, setName, las
         placeholder="Contraseña"
         secureTextEntry
       />
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
       <View style={styles.buttonContainer}>
-        <Button title={isLogin ? 'Iniciar sesión' : 'Registrarse'} onPress={handleAuthentication || create} color="#3498db" />
+        <Button title={isLogin ? 'Iniciar sesión' : 'Registrarse'} onPress={handleSubmit} color="#3498db" />
       </View>
 
       <View style={styles.bottomContainer}>
@@ -83,8 +123,8 @@ export function Account() {
   const [user, setUser] = useState(null); // Track user authentication state
   const [isLogin, setIsLogin] = useState(true);
   const [name, setName] = useState('');
-  const [lastname, setLastName] = useState('');
-  const [favoritefood, setFavoriteFood] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [favoriteFood, setFavoriteFood] = useState('');
 
 
 
@@ -218,11 +258,23 @@ export function Account() {
             </TouchableOpacity>
           )}
         </View>
-        <Text style={styles.title}>¡Bienvenido!</Text>
-        <Text style={styles.emailText}>Nombre:  {userData.data().name}</Text>
-        <Text style={styles.emailText}>Apellido: {userData.data().lastname}</Text>
-        <Text style={styles.emailText}>Comida Favorita: {userData.data().favoritefood}</Text>
-        <Text style={styles.emailText}>{user.email}</Text>
+        <Text style={styles.title}>¡Bienvenido {userData.data().name}!</Text>
+        <Text style={styles.dataText}>
+        <Text style={{ fontWeight: 'bold' }}>Nombre: </Text>
+        {userData.data().name}
+        </Text>
+        <Text style={styles.dataText}>
+          <Text style={{ fontWeight: 'bold' }}>Apellido: </Text>
+          {userData.data().lastname}
+        </Text>
+        <Text style={styles.dataText}>
+          <Text style={{ fontWeight: 'bold' }}>Comida Favorita: </Text>
+          {userData.data().favoritefood}
+        </Text>
+        <Text style={styles.dataText}>
+          <Text style={{ fontWeight: 'bold' }}>Correo Electrónico: </Text>
+          {user.email}
+        </Text>
         <Button title="Cerrar sesión" onPress={handleAuthentication} color="#e74c3c" />
       </View>
     );
@@ -230,10 +282,14 @@ export function Account() {
   
 
   const handleAuthentication = async () => {
+    
     try {
       if (user) {
         // Si el usuario esta autenticado, log out
         console.log('User logged out successfully!');
+        isLogin
+        setEmail('');
+        setPassword('');
         await signOut(auth);
       } else {
         // Sign in or sign up
@@ -261,8 +317,8 @@ export function Account() {
 
       setDoc(userDocRef, {
         email: email,
-        favoritefood: favoritefood,
-        lastname: lastname,
+        favoritefood: favoriteFood,
+        lastname: lastName,
         name: name,
         ingredients: [],
         recipes: [],
@@ -291,9 +347,9 @@ export function Account() {
           setPassword={setPassword}
           name={name}
           setName={setName}
-          lastname={lastname}
+          lastName={lastName}
           setLastName={setLastName}
-          favoritefood={favoritefood}
+          favoriteFood={favoriteFood}
           setFavoriteFood={setFavoriteFood}
           isLogin={isLogin}
           setIsLogin={setIsLogin}
@@ -332,6 +388,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#ddd',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'black',
   },
   placeholderText: {
     color: '#888',
@@ -344,6 +402,8 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
+    borderWidth: 2,
+    borderColor: 'black',
   },
   title: {
     fontSize: 24,
@@ -352,26 +412,31 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
-    borderColor: '#ddd',
     borderWidth: 1,
+    borderColor: '#ddd',
     marginBottom: 16,
     padding: 8,
     borderRadius: 4,
   },
   buttonContainer: {
     marginBottom: 16,
+    alignItems: 'center',
   },
   toggleText: {
-    color: '#365'
+    color: '#365',
   },
   bottomContainer: {
     marginTop: 20,
   },
-  emailText: {
-    fontSize: 18,
-    textAlign: 'center',
-    marginBottom: 20,
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
   },
-})
-
+  dataText: {
+    fontSize: 18,
+    textAlign: 'left',
+    marginBottom: 10,
+    color: '#333',
+  },
+});
 
