@@ -34,6 +34,15 @@ export default function Filters({ onApplyFilters }) {
     onApplyFilters(appliedFilters);
   };
 
+  const clearFilters = () => {
+    setFilters({
+      vegetarian: false,
+      protein: false,
+      sweet: false,
+    });
+    onApplyFilters({});
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.headerText}>Filters</Text>
@@ -61,6 +70,16 @@ export default function Filters({ onApplyFilters }) {
           Protein
         </PaperButton>
       </View>
+
+      <View style={styles.deleteButtonContainer}>
+        <PaperButton
+          mode="contained"
+          onPress={clearFilters}
+          buttonColor="#FF5252" // Red color for delete button
+        >
+          Delete Filters
+        </PaperButton>
+      </View>
     </ScrollView>
   );
 }
@@ -78,7 +97,12 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
+    textAlign: 'center',
     justifyContent: 'space-around',
     marginVertical: 20,
+  },
+  deleteButtonContainer: {
+    alignItems: 'center',
+    marginTop: 20,
   },
 });
