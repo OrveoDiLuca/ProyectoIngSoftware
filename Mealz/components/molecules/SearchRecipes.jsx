@@ -12,7 +12,7 @@ import { getAuth, onAuthStateChanged } from '@firebase/auth';
 
 const BASE_URL = "https://api.spoonacular.com/recipes/complexSearch";
 const db = getFirestore();
-const API_KEY = "889f98933dff42c1b2c410cfa0661115"
+const API_KEY = "79d5d31d011848849104d4d813478b2d"
 
 const calculateNutritionalValues = (nutrition) => {
   if (!nutrition || !nutrition.nutrients) {
