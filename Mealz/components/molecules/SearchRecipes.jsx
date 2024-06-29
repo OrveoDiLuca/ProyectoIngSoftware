@@ -1,4 +1,4 @@
-import { Text, View, TextInput, TouchableOpacity, Button } from "react-native";
+import { Text, View, TextInput, TouchableOpacity, Button, Alert } from "react-native";
 import { useState } from "react";
 import { useEffect } from "react";
 import React from "react";
@@ -85,24 +85,40 @@ export function SearchRecipes({navigation}) {
     } 
   }
 
+
   const addToFavorites = async (recipe) => {
-    
     if (isLoggedIn) {
       fecthUserRecipes();
       try {
         const userDocRef = doc(db, 'Users', user.uid);
-        await updateDoc(userDocRef, {
-          recipes: arrayUnion(recipe)
-        });
-        console.log('Recipe added to favorites:', recipe.title);
+        const userData = await getDoc(userDocRef);
+        const userRecipes = userData.data().recipes;
+  
+        // Verificar si la receta ya está en favoritos
+        const recipeExists = userRecipes.some((r) => r.id === recipe.id);
+  
+        if (recipeExists) {
+          // Mostrar mensaje de error con SweetAlert
+          Alert.alert(
+            'Error',
+            '¡La receta ya está añadida a favoritos!',
+            [{ text: 'OK', onPress: () => console.log('Alert closed') }],
+            { cancelable: true }
+          );
+        } else {
+          // Añadir la receta a favoritos si no existe
+          await updateDoc(userDocRef, {
+            recipes: arrayUnion(recipe)
+          });
+          console.log('Recipe added to favorites:', recipe.title);
+        }
       } catch (error) {
         console.error('Error adding recipe to favorites:', error);
       }
     } else {
-      console.error('Registrate porfavor para añadir a favoritos');
+      console.error('Regístrate por favor para añadir a favoritos');
     }
-
-};
+  };
 
   const handleSearch = async () => {
       try {
@@ -166,9 +182,7 @@ export function SearchRecipes({navigation}) {
                 </TouchableOpacity>
               ))}
         </View>
-
     </View>
-    
   );
 }; 
 
