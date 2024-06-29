@@ -2,8 +2,10 @@ import Filters from "../atoms/FiltersSearch"
 import React, { useState } from 'react';
 import { ScrollView, View, Text } from 'react-native';
 import axios from 'axios';
+import RecipeCard from '../atoms/RecipeCard'
 
-export function FilterSearch() {
+export function FilterSearch({navigation}) {
+  console.log(navigation)
     const [recipes, setRecipes] = useState([]);
   
     const fetchRecipes = async (filters) => {
@@ -11,7 +13,7 @@ export function FilterSearch() {
         console.log('Fetching Recipes with Filters:', filters); // Log para verificar los filtros en la solicitud
         const response = await axios.get('https://api.spoonacular.com/recipes/complexSearch', {
           params: {
-            apiKey: '79d5d31d011848849104d4d813478b2d',
+            apiKey: 'be51aa0b03234561a3f2478f15317316',
             number: 10, // Limitar el número de resultados
             ...filters,
           },
@@ -29,7 +31,7 @@ export function FilterSearch() {
         <ScrollView>
           {recipes.map((recipe) => (
             <View key={recipe.id}>
-              <Text>{recipe.title}</Text>
+              <RecipeCard item={recipe} navigation={navigation} />
             </View>
           ))}
         </ScrollView>

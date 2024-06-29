@@ -8,6 +8,7 @@ import { Recipes } from '../views/Recipes';
 import { Ingredients } from '../views/Ingredients';
 import { createStackNavigator } from '@react-navigation/stack';
 import { RecipeInfo } from '../views/RecipeInfo';
+import { FilterSearch } from '../components/molecules/FilterSearch';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -43,6 +44,7 @@ export default function HomeScreen() {
           <Stack.Navigator>
             <Stack.Screen name="Home" component={Home} />
             <Stack.Screen name="RecipeInfo" component={RecipeInfo} />
+            <Stack.Screen name="FilterSearch" component={FilterSearch} />
           </Stack.Navigator>
         )}
       </Tab.Screen>
@@ -51,6 +53,7 @@ export default function HomeScreen() {
           <Stack.Navigator>
             <Stack.Screen name="Recetas!" component={Recipes} />
             <Stack.Screen name="RecipeInfo" component={RecipeInfo} />
+            <Stack.Screen name="FilterSearch" component={FilterSearch} />
           </Stack.Navigator>
         )}
       </Tab.Screen>
