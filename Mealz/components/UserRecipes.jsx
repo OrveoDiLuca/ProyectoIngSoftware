@@ -64,10 +64,8 @@ const UserRecipes = ({navigation}) => {
     if (isLoggedIn) {
       const userDocRef = doc(db, 'Users', user.uid);
       const userData = await getDoc(userDocRef);
-
       const arrayLength = userData.data().ingredients.length;
       const randomIndex = Math.floor(Math.random() * arrayLength);
-
       try {
         const response = await axios.get(BASE_URL, {
           params: {

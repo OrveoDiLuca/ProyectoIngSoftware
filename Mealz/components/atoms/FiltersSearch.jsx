@@ -91,13 +91,11 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 24,
     fontWeight: 'bold',
-    textAlign: 'center',
     marginBottom: 20,
     color: '#6200ee', // Adjust the color as needed
   },
   buttonContainer: {
     flexDirection: 'row',
-    textAlign: 'center',
     justifyContent: 'space-around',
     marginVertical: 20,
   },

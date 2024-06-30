@@ -4,6 +4,10 @@ import { ScrollView, View, Text,TextInput, TouchableOpacity, Button, Alert,Image
 import axios from 'axios';
 import { getFirestore, doc, updateDoc, arrayUnion, arrayRemove, getDoc } from '@firebase/firestore';
 import { getAuth, onAuthStateChanged } from '@firebase/auth';
+
+const BASE_URL = "https://api.spoonacular.com/recipes/complexSearch";
+const db = getFirestore();
+const API_KEY = "79d5d31d011848849104d4d813478b2d"
 const calculateNutritionalValues = (nutrition) => {
   if (!nutrition || !nutrition.nutrients) {
     return {
@@ -30,16 +34,15 @@ const calculateNutritionalValues = (nutrition) => {
   };
 }
 export function FilterSearch({navigation}) {
-    const [searchText, setSearchText] = useState(''); //Salva el estado del input de la barra de busqueda
     const [recipes, setRecipes] = useState([]); //Guarda las recetas obtenidas en el estado
     const [userRecipes, setUserRecipes] = useState([]);
     const [info, setInfo] = useState({id: 0, title: " ", image: " ", summary: " "})
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [loading, setLoading] = useState(false);
     const auth = getAuth();
     const user = auth.currentUser;
+    
     const handleInfo = ({item}) => {
-      fetch(`https://api.spoonacular.com/recipes/${item.id}/information?apiKey=${apiKey}`)
+      fetch(`https://api.spoonacular.com/recipes/${item.id}/information?apiKey=${API_KEY}`)
         .then(response => response.json())
         .then(data => {
           setInfo(data); // Guarda las recetas obtenidas en el estado
@@ -67,13 +70,14 @@ export function FilterSearch({navigation}) {
           console.error('Error fetching user recipes:', error);
         }
       } 
-    }
+    };
+    
     const fetchRecipes = async (filters) => {
       try {
         console.log('Fetching Recipes with Filters:', filters); // Log para verificar los filtros en la solicitud
-        const response = await axios.get('https://api.spoonacular.com/recipes/complexSearch', {
+        const response = await axios.get(BASE_URL, {
           params: {
-            apiKey: 'be51aa0b03234561a3f2478f15317316',
+            apiKey: API_KEY,
             number: 10, // Limitar el número de resultados
             ...filters,
           },
