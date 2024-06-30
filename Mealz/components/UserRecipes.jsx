@@ -217,7 +217,7 @@ const UserRecipes = ({navigation}) => {
             <SearchRecipes navigation={navigation} />
           </View>
           <View>
-            <FilterSearch/>
+            <FilterSearch navigation={navigation}/>
           </View>
 
         </View>
