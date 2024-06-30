@@ -128,7 +128,7 @@ const UserRecipes = ({navigation}) => {
       .then(response => response.json())
       .then(data => {
         setInfo(data); // Guarda las recetas obtenidas en el estado
-        navigation.navigate("RecipeInfo", { recipeInfo: info });
+        navigation.navigate("RecipeInfo", { recipeInfo: data });
       })
       .catch(error => {
         console.error(error);
@@ -170,7 +170,7 @@ const UserRecipes = ({navigation}) => {
                 key={item.id.toString()}
                 onPress={() => {
                   handleInfo(item={item}); // no estab
-                  navigation.navigate("RecipeInfo", { recipeInfo: info }); // no estaba
+                  
                 }}
               >
                 <View style={styles.card}>
@@ -193,7 +193,7 @@ const UserRecipes = ({navigation}) => {
                 key={item.id.toString()}
                 onPress={() => {
                   handleInfo(item={item}); 
-                  navigation.navigate("RecipeInfo", { recipeInfo: info });
+                  
                 }}
               >
                 <View style={styles.card}>

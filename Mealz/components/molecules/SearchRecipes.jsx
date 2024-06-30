@@ -58,6 +58,7 @@ export function SearchRecipes({navigation}) {
       .then(response => response.json())
       .then(data => {
         setInfo(data); // Guarda las recetas obtenidas en el estado
+        navigation.navigate("RecipeInfo", { recipeInfo: data });
       })
       .catch(error => {
         console.error(error);
@@ -165,7 +166,7 @@ export function SearchRecipes({navigation}) {
                   key={item.id.toString()}
                   onPress={() => {
                     handleInfo(item={item}); 
-                    navigation.navigate("RecipeInfo", { recipeInfo: info });
+                   
                   }}
                 >
                   <View style={styles.card}>
