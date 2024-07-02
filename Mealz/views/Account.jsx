@@ -194,7 +194,8 @@ export function Account() {
       });
   
       if (!result.canceled) {
-        uploadImage(result.assets[0].uri); 
+        const imageUri = result.assets[0].uri; // Extract the image URI
+        uploadImage(imageUri);
       }
     };
   
@@ -219,18 +220,22 @@ export function Account() {
       }
     };
   
-    const updateProfileImage = async (userId) => {
+    const updateProfileImage = async (imageUrl) => {
+      const userId = user.uid;
       const storageRef = ref(storage, `profile_images/${userId}`);
-    
+  
       try {
+        const response = await fetch(imageUri);
+        const blob = await response.blob();
+    
+        await uploadBytes(storageRef, blob);
+    
+        // Wait for download URL before accessing it
         const url = await getDownloadURL(storageRef);
-        const userRef = doc(db, "Users", userId);
     
-        await updateDoc(userRef, {
-          profileImageUrl: url
-        });
+        await updateProfileImage(url);
     
-        console.log('URL de imagen de perfil actualizada correctamente en Firestore');
+        setImageUrl(url);
       } catch (error) {
       }
     };
@@ -246,18 +251,18 @@ export function Account() {
 
     return (
       <View style={styles.authContainer}>
-        <View style={styles.profileImageContainer}>
-          {imageUrl ? (
-            <Image source={{ uri: imageUrl }} style={styles.profileImage} />
-          ) : (
-            <TouchableOpacity onPress={pickImage}>
-              <View style={styles.imagePlaceholder}>
-                <Text style={styles.placeholderText}>Add Photo</Text>
-                <FontAwesome name="camera" size={24} style={styles.cameraIcon} />
-              </View>
-            </TouchableOpacity>
-          )}
-        </View>
+    <View style={styles.profileImageContainer}>
+      <TouchableOpacity onPress={pickImage}>
+        {imageUrl ? (
+          <Image source={{ uri: imageUrl }} style={styles.profileImage} />
+        ) : (
+          <View style={styles.imagePlaceholder}>
+            <Text style={styles.placeholderText}>Add Photo</Text>
+            <FontAwesome name="camera" size={24} style={styles.cameraIcon} />
+          </View>
+        )}
+      </TouchableOpacity>
+    </View>
         <Text style={styles.title}>¡Bienvenido {userData.data().name}!</Text>
         <Text style={styles.dataText}>
         <Text style={{ fontWeight: 'bold' }}>Nombre: </Text>
