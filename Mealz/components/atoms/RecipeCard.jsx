@@ -39,7 +39,7 @@ const RecipeCard = ({item, navigation}) => {
           console.error('Error adding recipe to favorites:', error);
         }
       } else {
-        console.error('Registrate porfavor para añadir a favoritos');
+        console.error('Registrate por favor para añadir a favoritos');
       }
   };
 
