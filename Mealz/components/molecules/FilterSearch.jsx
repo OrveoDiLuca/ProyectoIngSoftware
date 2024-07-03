@@ -7,7 +7,7 @@ import { getAuth, onAuthStateChanged } from '@firebase/auth';
 
 const BASE_URL = "https://api.spoonacular.com/recipes/complexSearch";
 const db = getFirestore();
-const API_KEY = "79d5d31d011848849104d4d813478b2d"
+const API_KEY = "bf55e190e87d4d7c83951403aa47ccd4";
 const calculateNutritionalValues = (nutrition) => {
   if (!nutrition || !nutrition.nutrients) {
     return {
@@ -32,11 +32,12 @@ const calculateNutritionalValues = (nutrition) => {
     carbohydrates: carbohydrates.toFixed(1) + " g",
     fat: fat.toFixed(1) + " g"
   };
-}
+};
+
 export function FilterSearch({navigation}) {
-    const [recipes, setRecipes] = useState([]); //Guarda las recetas obtenidas en el estado
+    const [recipes, setRecipes] = useState([]); 
     const [userRecipes, setUserRecipes] = useState([]);
-    const [info, setInfo] = useState({id: 0, title: " ", image: " ", summary: " "})
+    const [info, setInfo] = useState({id: 0, title: " ", image: " ", summary: " "});
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const auth = getAuth();
     const user = auth.currentUser;
@@ -45,13 +46,14 @@ export function FilterSearch({navigation}) {
       fetch(`https://api.spoonacular.com/recipes/${item.id}/information?apiKey=${API_KEY}`)
         .then(response => response.json())
         .then(data => {
-          setInfo(data); // Guarda las recetas obtenidas en el estado
+          setInfo(data); 
           navigation.navigate("RecipeInfo", { recipeInfo: data });
         })
         .catch(error => {
           console.error(error);
         });
     };
+
     useEffect(() => {
       fecthUserRecipes();
       const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -65,7 +67,7 @@ export function FilterSearch({navigation}) {
         try {
           const userDocRef = doc(db, 'Users', user.uid);
           const userData = await getDoc(userDocRef);
-          setUserRecipes(userData.data().recipes)
+          setUserRecipes(userData.data().recipes);
         } catch (error) {
           console.error('Error fetching user recipes:', error);
         }
@@ -74,20 +76,22 @@ export function FilterSearch({navigation}) {
     
     const fetchRecipes = async (filters) => {
       try {
-        console.log('Fetching Recipes with Filters:', filters); // Log para verificar los filtros en la solicitud
+        console.log('Fetching Recipes with Filters:', filters);
         const response = await axios.get(BASE_URL, {
           params: {
             apiKey: API_KEY,
-            number: 10, // Limitar el número de resultados
+            addRecipeNutrition: true,
+            number: 10, 
             ...filters,
           },
         });
-        console.log('API Response:', response.data); // Log para verificar la respuesta de la API
+        console.log('API Response:', response.data);
         setRecipes(response.data.results);
       } catch (error) {
         console.error(error);
       }
     };
+
     const addToFavorites = async (recipe) => {
       if (isLoggedIn) {
         fecthUserRecipes();
@@ -95,7 +99,6 @@ export function FilterSearch({navigation}) {
           const userDocRef = doc(db, 'Users', user.uid);
           const userData = await getDoc(userDocRef);
           const userRecipes = userData.data().recipes;
-    
           // Verificar si la receta ya está en favoritos
           const recipeExists = userRecipes.some((r) => r.id === recipe.id);
     
@@ -142,7 +145,7 @@ export function FilterSearch({navigation}) {
                 <Text style={styles.nutriente}>Proteínas: {calculateNutritionalValues(item.nutrition).protein}</Text>
                 <Text style={styles.nutriente}>Carbohidratos: {calculateNutritionalValues(item.nutrition).carbohydrates}</Text>
                 <Text style={styles.nutriente}>Grasas: {calculateNutritionalValues(item.nutrition).fat}</Text>
-                <Button title="Añadir a Favoritos" onPress={() => addToFavorites(item)} style={{ pointerEvents: 'box-none' }} />
+                <Button title="Add to favorites" onPress={() => addToFavorites(item)} style={{ pointerEvents: 'box-none' }} />
               </View>
             </View>
           </TouchableOpacity>
@@ -217,5 +220,4 @@ export function FilterSearch({navigation}) {
       color: '#fff',
       fontSize: 16,
     },
-  
   });

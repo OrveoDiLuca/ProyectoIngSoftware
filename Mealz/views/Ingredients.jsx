@@ -113,13 +113,13 @@ export function Ingredients() {
                 >
                     <View style={styles.centeredView}> 
                         <View style={styles.modalView}>
-                            <Text style={styles.modalTitle}>Añadir Nuevo Ingrediente</Text>
+                            <Text style={styles.modalTitle}>ADD NEW INGREDIENT</Text>
                             
                             <SearchIngredients addIngredient={handleNewIngredient}/> 
                         
                             <View style={styles.buttonContainer}>
                             <Button
-                                title="Añadir"
+                                title="Add"
                                 onPress={() => {
                                 if (isLoggedIn) {
                                     handleAddUserIngredient();
