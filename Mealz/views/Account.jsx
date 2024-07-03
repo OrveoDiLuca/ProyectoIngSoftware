@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, View, Text, TextInput, Button, StyleSheet, ScrollView, Image, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, View, Text, TextInput, Button, StyleSheet, ScrollView, Image, ActivityIndicator, Alert } from 'react-native';
 import { initializeApp } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification  } from 'firebase/auth';
 import * as ImagePicker from 'expo-image-picker';
 import { getFirestore, addDoc, collection, doc, updateDoc, getDoc, setDoc} from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -264,6 +264,9 @@ export function Account() {
       </TouchableOpacity>
     </View>
         <Text style={styles.title}>¡Bienvenido {userData.data().name}!</Text>
+        <Text style={[styles.emailVerifiedText, { color: user.emailVerified ? 'green' : 'red' }]}>
+              {user.emailVerified ? 'Verificado' : 'No verificado'}
+            </Text>
         <Text style={styles.dataText}>
         <Text style={{ fontWeight: 'bold' }}>Nombre: </Text>
         {userData.data().name}
@@ -320,24 +323,34 @@ export function Account() {
       const userId = user.uid; // Get the user ID
       const userDocRef = doc(collection(db, "Users"), userId); // Create reference with user ID
 
-      setDoc(userDocRef, {
+      await setDoc(userDocRef, {
         email: email,
         favoritefood: favoriteFood,
         lastname: lastName,
         name: name,
         ingredients: [],
         recipes: [],
-        profileImageUrl: null
-      }).then(() => {
-        console.log('Usuario creado correctamente en Firestore');
-      }).catch((error) => {
-        console.log(error);
+        profileImageUrl: null,
+        emailVerified: user.emailVerified // Agrega una bandera de verificación de correo electrónico
       });
 
-    } catch (error) {
-      console.error('Error al crear o actualizar usuario en Firestore:', error.message);
-    }
-  };
+   
+    await sendEmailVerification(auth.currentUser);
+
+    Alert.alert(
+      'Correo de verificación enviado',
+      'Se ha enviado un correo electrónico de verificación. Por favor, verifica tu correo electrónico para completar el registro.',
+      [
+        { text: 'OK', onPress: () => console.log('Alerta cerrada') }
+      ],
+      { cancelable: false }
+    );
+
+    console.log('Usuario creado correctamente en Firestore y correo de verificación enviado.');
+  } catch (error) {
+    console.error('Error al crear o actualizar usuario en Firestore:', error.message);
+  }
+};
   
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -409,6 +422,12 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     borderWidth: 2,
     borderColor: 'black',
+  },
+  emailVerifiedText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 10,
   },
   title: {
     fontSize: 24,
