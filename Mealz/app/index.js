@@ -39,45 +39,45 @@ export default function HomeScreen() {
         ),
       })}
     >
-      <Tab.Screen name="Inicio">
+      <Tab.Screen name="Home">
         {() => (
           <Stack.Navigator>
-            <Stack.Screen name="Home" component={Home} />
+            <Stack.Screen name="Welcome" component={Home} />
             <Stack.Screen name="RecipeInfo" component={RecipeInfo} />
             <Stack.Screen name="FilterSearch" component={FilterSearch} />
           </Stack.Navigator>
         )}
       </Tab.Screen>
-      <Tab.Screen name="Recetas">
+      <Tab.Screen name="Recipes">
         {() => (
           <Stack.Navigator>
-            <Stack.Screen name="Recetas!" component={Recipes} />
+            <Stack.Screen name="Recipes!" component={Recipes} />
             <Stack.Screen name="RecipeInfo" component={RecipeInfo} />
             <Stack.Screen name="FilterSearch" component={FilterSearch} />
           </Stack.Navigator>
         )}
       </Tab.Screen>
-      <Tab.Screen name="Ingredientes" component={Ingredients} />
-      <Tab.Screen name="Perfil" component={Account} />
+      <Tab.Screen name="Ingredients" component={Ingredients} />
+      <Tab.Screen name="Profile" component={Account} />
     </Tab.Navigator>
   );
 }
 
 function screenOptions(route, color, size) {
   let iconName = '';
-  if (route.name === 'Inicio') {
+  if (route.name === 'Home') {
     iconName = 'home-outline';
   }
   if (route.name === 'Search') {
     iconName = 'magnify';
   }
-  if (route.name === 'Recetas') {
+  if (route.name === 'Recipes') {
     iconName = 'food-variant';
   }
-  if (route.name === 'Perfil') {
+  if (route.name === 'Profile') {
     iconName = 'account';
   }
-  if (route.name === 'Ingredientes') {
+  if (route.name === 'Ingredients') {
     iconName = 'fridge-outline';
   }
   return <Icon type='material-community' name={iconName} size={size} color={color} />;
