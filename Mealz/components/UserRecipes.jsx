@@ -112,6 +112,7 @@ const UserRecipes = ({navigation}) => {
           recipes: arrayRemove(recipe),
         });
         fetchUserRecipes();
+        fetchUserRecipes();
         console.log("Recipe removed from favorites:", recipe.title);
       } catch (error) {
         console.error("Error removing recipe from favorites:", error);
