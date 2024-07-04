@@ -229,16 +229,20 @@ const UserRecipes = ({navigation}) => {
               </TouchableOpacity>
             ))}
 
+
           <View>
             <FilterSearch navigation={navigation}/>
           </View>
+
 
         </View>
       ) : (
         <View style={styles.listContainer}>
           <Text className="text-center text-xl text-black font-bold mb-4 mt-3" >Log in to save recipes and receive recommendations! </Text>
+
     
           
+
         </View>
     )}
     </View>
