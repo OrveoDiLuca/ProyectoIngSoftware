@@ -17,7 +17,7 @@ const RecipeCard = ({item, navigation}) => {
   const handleInfo = async () => {
       try {
 
-      const response = await fetch(`https://api.spoonacular.com/recipes/${item.id}/information?apiKey=afe8bb05b5f4404291aa2c9b62128335`); //Api key de Alexia
+      const response = await fetch(`https://api.spoonacular.com/recipes/${item.id}/information?apiKey=2c61721201c14169a56ba648b7daf1da`); //Api key de Alexia
 
       const data = await response.json();
       setInfo(data);

@@ -9,7 +9,7 @@ import {FilterSearch} from "./molecules/FilterSearch"
 
 const BASE_URL = "https://api.spoonacular.com/recipes/complexSearch";
 const db = getFirestore();
-const API_KEY = "afe8bb05b5f4404291aa2c9b62128335"
+const API_KEY = "e3f2f95509ec4de082e30e4bde81d828"
 
 const calculateNutritionalValues = (nutrition) => {
   if (!nutrition || !nutrition.nutrients) {
@@ -161,6 +161,16 @@ const UserRecipes = ({navigation}) => {
 
   return (
     <View>
+
+          <View className = "flex-col items-centerflex flex-col">
+           <Text className="text-center text-xl text-black font-bold mb-4 mt-3">
+            Looking for a recipe with a specific ingredient? Enter it here!
+            </Text>
+            <SearchRecipes navigation={navigation} />
+          </View>
+         
+
+
       {isLoggedIn ? (
           <View style={styles.listContainer}>
           <Text className="text-center text-xl text-black font-bold mb-4 mt-3" >Your favorite recipes!</Text>
@@ -209,12 +219,6 @@ const UserRecipes = ({navigation}) => {
               </TouchableOpacity>
             ))}
 
-          <View className = "flex-col items-centerflex flex-col">
-            <Text className="text-center text-xl text-black font-bold mb-4 mt-3" >
-              ¿Buscas una receta con un ingrediente específico? Ingrésalo aquí!
-            </Text>
-            <SearchRecipes navigation={navigation} />
-          </View>
           <View>
             <FilterSearch navigation={navigation}/>
           </View>
@@ -223,13 +227,7 @@ const UserRecipes = ({navigation}) => {
       ) : (
         <View style={styles.listContainer}>
           <Text className="text-center text-xl text-black font-bold mb-4 mt-3" >Log in to save recipes and receive recommendations! </Text>
-          
-          <View className = "flex-col items-centerflex flex-col">
-            <Text className="text-center text-xl text-black font-bold mb-4 mt-3">
-            Looking for a recipe with a specific ingredient? Enter it here!
-            </Text>
-            <SearchRecipes navigation={navigation} />
-          </View>
+    
           
         </View>
     )}
