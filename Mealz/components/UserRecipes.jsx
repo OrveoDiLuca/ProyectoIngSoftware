@@ -9,7 +9,7 @@ import {FilterSearch} from "./molecules/FilterSearch"
 
 const BASE_URL = "https://api.spoonacular.com/recipes/complexSearch";
 const db = getFirestore();
-const API_KEY = "bf55e190e87d4d7c83951403aa47ccd4"
+const API_KEY = "afe8bb05b5f4404291aa2c9b62128335"
 
 const calculateNutritionalValues = (nutrition) => {
   if (!nutrition || !nutrition.nutrients) {
@@ -111,7 +111,7 @@ const UserRecipes = ({navigation}) => {
         await updateDoc(userDocRef, {
           recipes: arrayRemove(recipe),
         });
-        fecthUserRecipes();
+        fetchUserRecipes();
         console.log("Recipe removed from favorites:", recipe.title);
       } catch (error) {
         console.error("Error removing recipe from favorites:", error);
