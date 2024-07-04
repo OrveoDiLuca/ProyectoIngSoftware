@@ -172,7 +172,17 @@ const UserRecipes = ({navigation}) => {
 
 
       {isLoggedIn ? (
-          <View style={styles.listContainer}>
+          
+        <View style={styles.listContainer}>
+          <View className = "flex-col items-centerflex flex-col">
+            <Text className="text-center text-xl text-black font-bold mb-4 mt-3" >
+            Looking for a recipe with a specific ingredient? Enter it here!
+            </Text>
+            <SearchRecipes navigation={navigation} />
+          </View>
+          <View>
+            <FilterSearch navigation={navigation}/>
+          </View>
           <Text className="text-center text-xl text-black font-bold mb-4 mt-3" >Your favorite recipes!</Text>
           {userRecipes.map((item) => (
               <TouchableOpacity
@@ -186,10 +196,10 @@ const UserRecipes = ({navigation}) => {
                   <Image source={{ uri: item.image }} style={styles.image} />
                   <View style={styles.textContainer}>
                     <Text style={styles.title}>{item.title}</Text>
-                    <Text style={styles.nutriente}>Calorías: {calculateNutritionalValues(item.nutrition).calories}</Text>
-                    <Text style={styles.nutriente}>Proteínas: {calculateNutritionalValues(item.nutrition).protein}</Text>
-                    <Text style={styles.nutriente}>Carbohidratos: {calculateNutritionalValues(item.nutrition).carbohydrates}</Text>
-                    <Text style={styles.nutriente}>Grasas: {calculateNutritionalValues(item.nutrition).fat}</Text>
+                    <Text style={styles.nutriente}>Calories: {calculateNutritionalValues(item.nutrition).calories}</Text>
+                    <Text style={styles.nutriente}>Proteins: {calculateNutritionalValues(item.nutrition).protein}</Text>
+                    <Text style={styles.nutriente}>Carbohydrates: {calculateNutritionalValues(item.nutrition).carbohydrates}</Text>
+                    <Text style={styles.nutriente}>Fats: {calculateNutritionalValues(item.nutrition).fat}</Text>
                     <Button title="Eliminate from favorites" onPress={() => removeFromFavorites(item)} color = 'red' style={{ pointerEvents: 'box-none' }} />
                   </View>
                 </View>
@@ -209,10 +219,10 @@ const UserRecipes = ({navigation}) => {
                   <Image source={{ uri: item.image }} style={styles.image} />
                   <View style={styles.textContainer}>
                     <Text style={styles.title}>{item.title}</Text>
-                    <Text style={styles.nutriente}>Calorías: {calculateNutritionalValues(item.nutrition).calories}</Text>
-                    <Text style={styles.nutriente}>Proteínas: {calculateNutritionalValues(item.nutrition).protein}</Text>
-                    <Text style={styles.nutriente}>Carbohidratos: {calculateNutritionalValues(item.nutrition).carbohydrates}</Text>
-                    <Text style={styles.nutriente}>Grasas: {calculateNutritionalValues(item.nutrition).fat}</Text>
+                    <Text style={styles.nutriente}>Calories: {calculateNutritionalValues(item.nutrition).calories}</Text>
+                    <Text style={styles.nutriente}>Proteins: {calculateNutritionalValues(item.nutrition).protein}</Text>
+                    <Text style={styles.nutriente}>Carbohydrates: {calculateNutritionalValues(item.nutrition).carbohydrates}</Text>
+                    <Text style={styles.nutriente}>Fats: {calculateNutritionalValues(item.nutrition).fat}</Text>
                     <Button title="Add to Favorites" onPress={() => addToFavorites(item)} style={{ pointerEvents: 'box-none' }} />
                   </View>
                 </View>
