@@ -287,6 +287,7 @@ export function Account() {
               style={styles.input}
               value={lastName}
               onChangeText={setLastName}
+              placeholder={userData.data().lastname}
             />
           ) : (
             <Text style={styles.dataText}>{userData.data().lastname}</Text>
@@ -414,6 +415,8 @@ export function Account() {
           setIsLogin={setIsLogin}
           handleAuthentication={handleAuthentication}
           create={create}
+          isEditing={isEditing}
+          setIsEditing={setIsEditing}
         />
       )}
     </ScrollView>
