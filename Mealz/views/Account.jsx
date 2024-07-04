@@ -1,27 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, View, Text, TextInput, Button, StyleSheet, ScrollView, Image, ActivityIndicator } from 'react-native';
-import { initializeApp } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
+import { TouchableOpacity, View, Text, TextInput, Button, StyleSheet, ScrollView, Image, ActivityIndicator, Alert } from 'react-native';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, sendPasswordResetEmail } from 'firebase/auth';
 import * as ImagePicker from 'expo-image-picker';
-import { getFirestore, addDoc, collection, doc, updateDoc, getDoc, setDoc} from "firebase/firestore";
+import { collection, doc, getDoc, setDoc, updateDoc} from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { FontAwesome } from 'react-native-vector-icons';
-import DropdownMenu from '../components/DropdownMenu'
-
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDoYXpg0KY7ICo7StLLIAMjh1S1obeEU_s",
-  authDomain: "mealz-f885e.firebaseapp.com",
-  projectId: "mealz-f885e",
-  storageBucket: "mealz-f885e.appspot.com",
-  messagingSenderId: "847182744486",
-  appId: "1:847182744486:web:e077135c5be8059edc1d67",
-  measurementId: "G-J4LDTRWR2W"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const storage = getStorage(app);
+import { auth, db, storage } from '../firebase/firebaseConfig';
 
 const AuthScreen = ({ email, setEmail, password, setPassword, name, setName, lastName, setLastName, favoriteFood, setFavoriteFood, isLogin, setIsLogin, handleAuthentication, create }) => {
   const [error, setError] = useState('');
@@ -60,6 +44,20 @@ const AuthScreen = ({ email, setEmail, password, setPassword, name, setName, las
   
   const capitalizeFirstLetter = (text) => {
     return text && text.charAt(0).toUpperCase() + text.slice(1);
+  };
+
+  const handleResetPassword = async () => {
+    if (!email) {
+      setError('Por favor, ingresa tu correo electrónico');
+      return;
+    }
+  
+    try {
+      await sendPasswordResetEmail(auth, email);
+      Alert.alert('Correo enviado', 'Se ha enviado un correo para restablecer tu contraseña', [{ text: 'OK' }]);
+    } catch (error) {
+      setError('Error al enviar el correo de restablecimiento: ' + error.message);
+    }
   };
 
   return (
@@ -106,6 +104,12 @@ const AuthScreen = ({ email, setEmail, password, setPassword, name, setName, las
         <Button title={isLogin ? 'Iniciar sesión' : 'Registrarse'} onPress={handleSubmit} color="#3498db" />
       </View>
 
+      {isLogin && (
+      <Text style={styles.toggleText} onPress={handleResetPassword}>
+        ¿Olvidaste tu contraseña?
+      </Text>
+      )}
+
       <View style={styles.bottomContainer}>
         <Text style={styles.toggleText} onPress={() => setIsLogin(!isLogin)}>
           {isLogin ? '¿No tienes una cuenta? Registrarse' : '¿Ya tienes una cuenta? Iniciar sesión'}
@@ -125,11 +129,7 @@ export function Account() {
   const [name, setName] = useState('');
   const [lastName, setLastName] = useState('');
   const [favoriteFood, setFavoriteFood] = useState('');
-
-
-
-  const auth = getAuth(app);
-
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -251,40 +251,85 @@ export function Account() {
 
     return (
       <View style={styles.authContainer}>
-    <View style={styles.profileImageContainer}>
-      <TouchableOpacity onPress={pickImage}>
-        {imageUrl ? (
-          <Image source={{ uri: imageUrl }} style={styles.profileImage} />
-        ) : (
-          <View style={styles.imagePlaceholder}>
-            <Text style={styles.placeholderText}>Add Photo</Text>
-            <FontAwesome name="camera" size={24} style={styles.cameraIcon} />
-          </View>
-        )}
-      </TouchableOpacity>
-    </View>
+        <View style={styles.profileImageContainer}>
+          <TouchableOpacity onPress={pickImage}>
+            {imageUrl ? (
+              <Image source={{ uri: imageUrl }} style={styles.profileImage} />
+            ) : (
+              <View style={styles.imagePlaceholder}>
+                <Text style={styles.placeholderText}>Add Photo</Text>
+                <FontAwesome name="camera" size={24} style={styles.cameraIcon} />
+              </View>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setIsEditing(!isEditing)} style={styles.editIconContainer}>
+          <FontAwesome name="pencil" size={24} color="black" />
+        </TouchableOpacity>
+        </View>
         <Text style={styles.title}>¡Bienvenido {userData.data().name}!</Text>
-        <Text style={styles.dataText}>
-        <Text style={{ fontWeight: 'bold' }}>Nombre: </Text>
-        {userData.data().name}
+        <Text style={[styles.emailVerifiedText, { color: user.emailVerified ? 'green' : 'red' }]}>
+          {user.emailVerified ? 'Verificado' : 'No verificado'}
         </Text>
-        <Text style={styles.dataText}>
-          <Text style={{ fontWeight: 'bold' }}>Apellido: </Text>
-          {userData.data().lastname}
-        </Text>
-        <Text style={styles.dataText}>
-          <Text style={{ fontWeight: 'bold' }}>Comida Favorita: </Text>
-          {userData.data().favoritefood}
-        </Text>
+          <Text style={styles.dataLabel}>Nombre </Text>
+          {isEditing ? (
+            <TextInput
+              style={styles.input}
+              value={name}
+              onChangeText={(text) => setName(text)}              
+              placeholder={userData.data().name}
+            />
+          ) : (
+            <Text style={styles.dataText}>{userData.data().name}</Text>
+          )}
+          <Text style={styles.dataLabel}>Apellido </Text>
+          {isEditing ? (
+            <TextInput
+              style={styles.input}
+              value={lastName}
+              onChangeText={setLastName}
+              placeholder={userData.data().lastname}
+            />
+          ) : (
+            <Text style={styles.dataText}>{userData.data().lastname}</Text>
+          )}
+          <Text style={styles.dataLabel}>Comida Favorita </Text>
+          {isEditing ? (
+            <TextInput
+              style={styles.input}
+              value={favoriteFood}
+              onChangeText={setFavoriteFood}
+              placeholder={userData.data().favoritefood}
+            />
+          ) : (
+            <Text style={styles.dataText}>{userData.data().favoritefood}</Text>
+          )}
         <Text style={styles.dataText}>
           <Text style={{ fontWeight: 'bold' }}>Correo Electrónico: </Text>
           {user.email}
         </Text>
         <Button title="Cerrar sesión" onPress={handleAuthentication} color="#e74c3c" />
+        <Button title="Update" onPress={updateUserData} color="#FAED57" />
       </View>
     );
   };
   
+
+  const updateUserData = async () => {
+    if (user) {
+      const userDocRef = doc(db, 'Users', user.uid);
+      try {
+        await updateDoc(userDocRef, {
+          name,
+          lastName,
+          favoriteFood
+        });
+        alert('Información actualizada con éxito');
+      } catch (error) {
+        console.error('Error actualizando la información del usuario: ', error);
+        alert('Error actualizando la información del usuario: ' + error.message);
+      }
+    }
+  };
 
   const handleAuthentication = async () => {
     
@@ -320,24 +365,34 @@ export function Account() {
       const userId = user.uid; // Get the user ID
       const userDocRef = doc(collection(db, "Users"), userId); // Create reference with user ID
 
-      setDoc(userDocRef, {
+      await setDoc(userDocRef, {
         email: email,
         favoritefood: favoriteFood,
         lastname: lastName,
         name: name,
         ingredients: [],
         recipes: [],
-        profileImageUrl: null
-      }).then(() => {
-        console.log('Usuario creado correctamente en Firestore');
-      }).catch((error) => {
-        console.log(error);
+        profileImageUrl: null,
+        emailVerified: user.emailVerified // Agrega una bandera de verificación de correo electrónico
       });
 
-    } catch (error) {
-      console.error('Error al crear o actualizar usuario en Firestore:', error.message);
-    }
-  };
+   
+    await sendEmailVerification(auth.currentUser);
+
+    Alert.alert(
+      'Correo de verificación enviado',
+      'Se ha enviado un correo electrónico de verificación. Por favor, verifica tu correo electrónico para completar el registro.',
+      [
+        { text: 'OK', onPress: () => console.log('Alerta cerrada') }
+      ],
+      { cancelable: false }
+    );
+
+    console.log('Usuario creado correctamente en Firestore y correo de verificación enviado.');
+  } catch (error) {
+    console.error('Error al crear o actualizar usuario en Firestore:', error.message);
+  }
+};
   
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -360,6 +415,8 @@ export function Account() {
           setIsLogin={setIsLogin}
           handleAuthentication={handleAuthentication}
           create={create}
+          isEditing={isEditing}
+          setIsEditing={setIsEditing}
         />
       )}
     </ScrollView>
@@ -381,6 +438,9 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 8,
     elevation: 3,
+  },
+  editIconContainer: {
+    marginTop: 20
   },
   profileImageContainer: {
     alignItems: 'center',
@@ -409,6 +469,12 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     borderWidth: 2,
     borderColor: 'black',
+  },
+  emailVerifiedText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 10,
   },
   title: {
     fontSize: 24,
@@ -443,5 +509,26 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: '#333',
   },
+  dataRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  dataLabel: {
+    fontWeight: 'bold',
+    marginRight: 10,
+    marginRight: 10,
+    fontSize: 18, 
+    color: '#333',
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  editButton: {
+    marginLeft: 10,
+  },
 });
+
 
