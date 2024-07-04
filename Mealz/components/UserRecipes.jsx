@@ -111,7 +111,7 @@ const UserRecipes = ({navigation}) => {
         await updateDoc(userDocRef, {
           recipes: arrayRemove(recipe),
         });
-        fecthUserRecipes();
+        fetchUserRecipes();
         console.log("Recipe removed from favorites:", recipe.title);
       } catch (error) {
         console.error("Error removing recipe from favorites:", error);
